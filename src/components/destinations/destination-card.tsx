@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -41,8 +42,8 @@ export function DestinationCard({ destination, onAskQuestion }: DestinationCardP
         <CardDescription className="text-base line-clamp-4">{destination.description}</CardDescription>
       </CardContent>
       <CardFooter className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-4 border-t">
-        <Badge variant="secondary" className="text-sm py-1 px-3">
-          <DollarSign className="w-4 h-4 mr-1" />
+        <Badge variant="default" className="text-xs font-semibold py-1 px-2.5 shadow">
+          <DollarSign className="w-3.5 h-3.5 mr-1" />
           {destination.estimatedCost}
         </Badge>
         <Button
