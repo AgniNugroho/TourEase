@@ -127,11 +127,11 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button variant="outline" className="w-full text-lg py-6" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading}>
+            <Button variant="outline" className="w-full text-lg py-6 [&_svg]:size-6" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading}>
               {isGoogleLoading ? (
-                <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                <Loader2 className="mr-2 animate-spin" />
               ) : (
-                <GoogleIcon className="mr-2 h-6 w-6" />
+                <GoogleIcon className="mr-2" />
               )}
               Google
             </Button>
