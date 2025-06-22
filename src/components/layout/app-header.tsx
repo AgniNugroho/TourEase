@@ -1,7 +1,9 @@
+
 "use client";
 
 import { MountainSnow } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export function AppHeader() {
   return (
@@ -11,9 +13,13 @@ export function AppHeader() {
           <MountainSnow className="h-8 w-8" />
           <h1 className="text-3xl font-headline font-bold">TourEase</h1>
         </Link>
-        <nav className="space-x-4">
-          {/* Future navigation links can go here */}
-          {/* Example: <Link href="/about" className="text-foreground hover:text-primary transition-colors">About</Link> */}
+        <nav className="space-x-2 flex items-center">
+          <Button asChild variant="outline">
+            <Link href="/login">Login</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/register">Register</Link>
+          </Button>
         </nav>
       </div>
     </header>
