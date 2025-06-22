@@ -28,9 +28,17 @@ const loginFormSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
+function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.02-2.3 1.84-4.32 1.84-3.6 0-6.5-2.95-6.5-6.5s2.9-6.5 6.5-6.5c1.98 0 3.47.79 4.27 1.54l2.5-2.5C18.68 2.36 15.96 1 12.48 1 7.22 1 3.23 4.92 3.23 10.08s3.99 9.08 9.25 9.08c2.83 0 5.21-1 6.89-2.66 1.76-1.76 2.44-4.35 2.44-6.89v-.8H12.48z" />
+    </svg>
+  );
+}
+
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
-  // Add state for error handling if needed in the future
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -47,6 +55,15 @@ export default function LoginPage() {
     setTimeout(() => {
       setIsLoading(false);
       // On success, you would redirect the user
+    }, 2000);
+  };
+  
+  const handleGoogleLogin = () => {
+    setIsGoogleLoading(true);
+    console.log("Login with Google initiated.");
+    // Placeholder for actual Google login logic
+    setTimeout(() => {
+      setIsGoogleLoading(false);
     }, 2000);
   };
 
@@ -92,12 +109,33 @@ export default function LoginPage() {
                   )}
                 />
                 
-                <Button type="submit" className="w-full text-lg py-6" disabled={isLoading}>
+                <Button type="submit" className="w-full text-lg py-6" disabled={isLoading || isGoogleLoading}>
                   {isLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
                   Login
                 </Button>
               </form>
             </Form>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            <Button variant="outline" className="w-full text-lg py-6" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading}>
+              {isGoogleLoading ? (
+                <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+              ) : (
+                <GoogleIcon className="mr-2 h-6 w-6" />
+              )}
+              Google
+            </Button>
+            
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
               <Link href="/register" className="font-semibold text-primary hover:underline">
