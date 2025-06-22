@@ -45,6 +45,7 @@ export default function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const isFirebaseConfigured = !!auth;
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -65,6 +66,14 @@ export default function LoginPage() {
   };
   
   const handleGoogleLogin = async () => {
+    if (!auth) {
+      toast({
+        variant: "destructive",
+        title: "Configuration Error",
+        description: "Firebase is not configured. Please check your environment variables.",
+      });
+      return;
+    }
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     try {
@@ -147,7 +156,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button variant="outline" className="w-full text-lg py-6" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading}>
+            <Button variant="outline" className="w-full text-lg py-6" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading || !isFirebaseConfigured}>
               {isGoogleLoading ? (
                 <Loader2 className="mr-2 h-6 w-6 animate-spin" />
               ) : (
@@ -156,6 +165,12 @@ export default function LoginPage() {
               Google
             </Button>
             
+            {!isFirebaseConfigured && (
+              <p className="mt-2 text-xs text-center text-destructive/80">
+                Google Login is unavailable. The app is not fully configured.
+              </p>
+            )}
+
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
               <Link href="/register" className="font-semibold text-primary hover:underline">
