@@ -20,6 +20,10 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { AppHeader } from "@/components/layout/app-header";
 import { AppFooter } from "@/components/layout/app-footer";
+import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useToast } from "@/hooks/use-toast";
 
 const loginFormSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -39,6 +43,8 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -58,13 +64,27 @@ export default function LoginPage() {
     }, 2000);
   };
   
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
-    console.log("Login with Google initiated.");
-    // Placeholder for actual Google login logic
-    setTimeout(() => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      console.log("Google sign in successful, user:", result.user);
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${result.user.displayName}!`,
+      });
+      router.push('/');
+    } catch (error: any) {
+      console.error("Google login error:", error);
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: error.message,
+      });
+    } finally {
       setIsGoogleLoading(false);
-    }, 2000);
+    }
   };
 
   return (
