@@ -27,7 +27,8 @@ export type PersonalizedDestinationInput = z.infer<
   typeof PersonalizedDestinationInputSchema
 >;
 
-const PersonalizedDestinationOutputSchema = z.object({
+// Schema for the text-only part of the destination info
+const DestinationTextInfoSchema = z.object({
   destinations: z.array(
     z.object({
       name: z.string().describe('The name of the destination.'),
@@ -36,8 +37,23 @@ const PersonalizedDestinationOutputSchema = z.object({
         .string()
         .describe('The estimated cost of traveling to the destination from the user location.'),
     })
+  ).describe('A list of recommended travel destinations.'),
+});
+
+
+// The final output schema including the image URL
+const PersonalizedDestinationOutputSchema = z.object({
+  destinations: z.array(
+    z.object({
+      name: z.string().describe('The name of the destination.'),
+      description: z.string().describe('A brief description of the destination.'),
+      estimatedCost: z
+        .string()
+        .describe('The estimated cost of traveling to the destination from the user location.'),
+      imageUrl: z.string().url().describe('A generated image of the destination as a data URI.'),
+    })
   ).
-  describe('A list of recommended travel destinations.'),
+  describe('A list of recommended travel destinations with images.'),
 });
 
 export type PersonalizedDestinationOutput = z.infer<
@@ -50,10 +66,11 @@ export async function getPersonalizedDestinations(
   return personalizedDestinationFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'personalizedDestinationPrompt',
+// This prompt ONLY generates the text information
+const textPrompt = ai.definePrompt({
+  name: 'personalizedDestinationTextPrompt',
   input: {schema: PersonalizedDestinationInputSchema},
-  output: {schema: PersonalizedDestinationOutputSchema},
+  output: {schema: DestinationTextInfoSchema}, // Use the text-only schema here
   prompt: `You are a travel expert specializing in Indonesian tourism.
 
   Based on the user's preferences, recommend several travel destinations in Indonesia.
@@ -77,7 +94,31 @@ const personalizedDestinationFlow = ai.defineFlow(
     outputSchema: PersonalizedDestinationOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    // 1. Get text-based recommendations
+    const {output: textOutput} = await textPrompt(input);
+    if (!textOutput || !textOutput.destinations) {
+        return { destinations: [] };
+    }
+
+    // 2. Generate an image for each destination in parallel
+    const destinationsWithImages = await Promise.all(
+      textOutput.destinations.map(async (destination) => {
+        const imagePrompt = `A beautiful, high-quality, realistic photograph of ${destination.name}, Indonesia. A top travel destination known for: ${destination.description}. a scenic view`;
+        const {media} = await ai.generate({
+          model: 'googleai/gemini-2.0-flash-preview-image-generation',
+          prompt: imagePrompt,
+          config: {
+            responseModalities: ['TEXT', 'IMAGE'],
+          },
+        });
+        
+        return {
+          ...destination,
+          imageUrl: media.url, // This will be a data URI
+        };
+      })
+    );
+
+    return { destinations: destinationsWithImages };
   }
 );
