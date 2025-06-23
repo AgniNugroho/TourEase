@@ -37,7 +37,7 @@ export function AIChatWidget({ initialDestination }: AIChatWidgetProps) {
       if (isOpen) {
          setMessages(prev => [...prev, {
           id: Date.now().toString() + '_automsg',
-          text: `Okay, I'm ready to answer questions about ${initialDestination}. What would you like to know?`,
+          text: `Baik, saya siap menjawab pertanyaan tentang ${initialDestination}. Apa yang ingin Anda ketahui?`,
           sender: "ai"
         }]);
       }
@@ -71,14 +71,12 @@ export function AIChatWidget({ initialDestination }: AIChatWidgetProps) {
       const destMatch = userMessage.text.match(/about ([\w\s]+)[?,.]/i);
       if (destMatch && destMatch[1]) {
         destinationToQuery = destMatch[1].trim();
-        // Optional: remove "about [destination]" from question if needed for cleaner processing by AI
-        // question = question.replace(destMatch[0], "").trim(); 
       }
       
       if (!destinationToQuery) {
          setMessages((prevMessages) => [
           ...prevMessages,
-          { id: Date.now().toString() + '_ai_err', text: "Please specify a destination you'd like to ask about, or select one from the recommendations.", sender: "ai" },
+          { id: Date.now().toString() + '_ai_err', text: "Silakan tentukan destinasi yang ingin Anda tanyakan, atau pilih salah satu dari rekomendasi.", sender: "ai" },
         ]);
         setIsLoading(false);
         return;
@@ -98,12 +96,12 @@ export function AIChatWidget({ initialDestination }: AIChatWidgetProps) {
       console.error("Error calling AI Travel Assistant:", error);
       setMessages((prevMessages) => [
         ...prevMessages,
-        { id: Date.now().toString() + '_ai_err', text: "Sorry, I encountered an error. Please try again.", sender: "ai" },
+        { id: Date.now().toString() + '_ai_err', text: "Maaf, saya mengalami kesalahan. Silakan coba lagi.", sender: "ai" },
       ]);
       toast({
         variant: "destructive",
-        title: "AI Assistant Error",
-        description: "Could not get a response from the AI assistant.",
+        title: "Kesalahan Asisten AI",
+        description: "Tidak dapat memperoleh respons dari asisten AI.",
       });
     } finally {
       setIsLoading(false);
@@ -114,30 +112,24 @@ export function AIChatWidget({ initialDestination }: AIChatWidgetProps) {
     setCurrentDestination(destinationName);
     setMessages([{
       id: Date.now().toString() + '_automsg_open',
-      text: `Let's talk about ${destinationName}. What would you like to ask?`,
+      text: `Mari kita bicara tentang ${destinationName}. Apa yang ingin Anda tanyakan?`,
       sender: "ai"
     }]);
     setInputValue(""); // Clear previous input
     setIsOpen(true);
   };
-  
-  // Expose method to parent if needed, or use prop drilling / context for complex scenarios
-  // For this example, if `DestinationCard` calls a function passed from page.tsx which then calls this, it's fine.
-  // This specific implementation detail depends on how `onAskQuestion` is wired in parent.
-  // Here, we assume `initialDestination` prop handles this.
 
   return (
     <>
-      {/* This button can be placed anywhere, e.g., fixed on page */}
       {!isOpen && (
          <Button
             onClick={() => {
-              setCurrentDestination(""); // Reset destination when opening fresh
+              setCurrentDestination(""); 
               setMessages([]);
               setIsOpen(true);
             }}
             className="fixed bottom-6 right-6 rounded-full p-4 shadow-lg z-50 bg-accent hover:bg-accent/90 text-accent-foreground"
-            aria-label="Open AI Travel Assistant"
+            aria-label="Buka Asisten Perjalanan AI"
             size="lg"
           >
             <MessageCircle className="h-8 w-8" />
@@ -148,11 +140,11 @@ export function AIChatWidget({ initialDestination }: AIChatWidgetProps) {
         <SheetContent className="w-full sm:max-w-lg flex flex-col p-0">
           <SheetHeader className="p-6 pb-2 border-b">
             <SheetTitle className="text-2xl font-headline text-primary flex items-center gap-2">
-              <Bot className="h-7 w-7"/> AI Travel Assistant
+              <Bot className="h-7 w-7"/> Asisten Perjalanan AI
             </SheetTitle>
             <SheetDescription>
-              Ask me anything about Indonesian travel destinations!
-              {currentDestination && <span className="block mt-1 text-sm text-primary">Currently focusing on: <strong>{currentDestination}</strong></span>}
+              Tanyakan apa saja tentang destinasi wisata di Indonesia!
+              {currentDestination && <span className="block mt-1 text-sm text-primary">Saat ini fokus pada: <strong>{currentDestination}</strong></span>}
             </SheetDescription>
           </SheetHeader>
           
@@ -202,21 +194,21 @@ export function AIChatWidget({ initialDestination }: AIChatWidgetProps) {
           <SheetFooter className="p-6 pt-2 border-t">
             {!currentDestination && (
                <div className="text-xs text-muted-foreground p-2 rounded-md bg-muted flex items-center gap-2 w-full mb-2">
-                 <Info size={16} /> Tip: You can ask about a specific place by typing "Tell me about [destination name]..."
+                 <Info size={16} /> Tip: Anda dapat bertanya tentang tempat tertentu dengan mengetik "Ceritakan tentang [nama destinasi]..."
                </div>
             )}
             <div className="flex w-full items-center gap-2">
               <Input
                 type="text"
-                placeholder={currentDestination ? `Ask about ${currentDestination}...` : "Type your question..."}
+                placeholder={currentDestination ? `Tanya tentang ${currentDestination}...` : "Ketik pertanyaan Anda..."}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && !isLoading && handleSendMessage()}
                 className="flex-grow"
                 disabled={isLoading}
-                aria-label="Chat input"
+                aria-label="Input obrolan"
               />
-              <Button onClick={handleSendMessage} disabled={isLoading || inputValue.trim() === ""} aria-label="Send message">
+              <Button onClick={handleSendMessage} disabled={isLoading || inputValue.trim() === ""} aria-label="Kirim pesan">
                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
               </Button>
             </div>

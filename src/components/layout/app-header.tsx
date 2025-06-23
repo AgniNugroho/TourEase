@@ -15,10 +15,10 @@ export function AppHeader() {
         </Link>
         <nav className="space-x-2 flex items-center">
           <Button asChild variant="outline">
-            <Link href="/login">Login</Link>
+            <Link href="/login">Masuk</Link>
           </Button>
           <Button asChild>
-            <Link href="/register">Register</Link>
+            <Link href="/register">Daftar</Link>
           </Button>
         </nav>
       </div>

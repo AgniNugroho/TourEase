@@ -22,11 +22,11 @@ import { AppHeader } from "@/components/layout/app-header";
 import { AppFooter } from "@/components/layout/app-footer";
 
 const registerFormSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
-  password: z.string().min(8, "Password must be at least 8 characters long."),
+  email: z.string().email("Silakan masukkan alamat email yang valid."),
+  password: z.string().min(8, "Kata sandi minimal 8 karakter."),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match.",
+  message: "Kata sandi tidak cocok.",
   path: ["confirmPassword"], // path of error
 });
 
@@ -61,9 +61,9 @@ export default function RegisterPage() {
       <main className="flex-grow flex items-center justify-center container mx-auto px-4 py-8">
         <Card className="w-full max-w-md shadow-xl">
           <CardHeader>
-            <CardTitle className="text-3xl font-headline text-center text-primary">Create an Account</CardTitle>
+            <CardTitle className="text-3xl font-headline text-center text-primary">Buat Akun</CardTitle>
             <CardDescription className="text-center text-lg">
-              Join TourEase to start planning your travels.
+              Bergabunglah dengan TourEase untuk mulai merencanakan perjalanan Anda.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -76,7 +76,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="you@example.com" {...field} />
+                        <Input type="email" placeholder="anda@contoh.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -88,7 +88,7 @@ export default function RegisterPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>Kata Sandi</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="••••••••" {...field} />
                       </FormControl>
@@ -102,7 +102,7 @@ export default function RegisterPage() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel>Konfirmasi Kata Sandi</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="••••••••" {...field} />
                       </FormControl>
@@ -113,14 +113,14 @@ export default function RegisterPage() {
                 
                 <Button type="submit" className="w-full text-lg py-6" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
-                  Register
+                  Daftar
                 </Button>
               </form>
             </Form>
              <p className="mt-6 text-center text-sm text-muted-foreground">
-              Already have an account?{" "}
+              Sudah punya akun?{" "}
               <Link href="/login" className="font-semibold text-primary hover:underline">
-                Login
+                Masuk
               </Link>
             </p>
           </CardContent>

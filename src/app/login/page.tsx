@@ -26,8 +26,8 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 
 const loginFormSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
-  password: z.string().min(1, "Password is required."),
+  email: z.string().email("Silakan masukkan alamat email yang valid."),
+  password: z.string().min(1, "Kata sandi wajib diisi."),
 });
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
@@ -69,8 +69,8 @@ export default function LoginPage() {
     if (!auth) {
       toast({
         variant: "destructive",
-        title: "Configuration Error",
-        description: "Firebase is not configured. Please check your environment variables.",
+        title: "Kesalahan Konfigurasi",
+        description: "Firebase tidak dikonfigurasi. Silakan periksa variabel lingkungan Anda.",
       });
       return;
     }
@@ -80,15 +80,15 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, provider);
       console.log("Google sign in successful, user:", result.user);
       toast({
-        title: "Login Successful",
-        description: `Welcome back, ${result.user.displayName}!`,
+        title: "Berhasil Masuk",
+        description: `Selamat datang kembali, ${result.user.displayName}!`,
       });
       router.push('/');
     } catch (error: any) {
       console.error("Google login error:", error);
       toast({
         variant: "destructive",
-        title: "Login Failed",
+        title: "Gagal Masuk",
         description: error.message,
       });
     } finally {
@@ -102,9 +102,9 @@ export default function LoginPage() {
       <main className="flex-grow flex items-center justify-center container mx-auto px-4 py-8">
         <Card className="w-full max-w-md shadow-xl">
           <CardHeader>
-            <CardTitle className="text-3xl font-headline text-center text-primary">Login</CardTitle>
+            <CardTitle className="text-3xl font-headline text-center text-primary">Masuk</CardTitle>
             <CardDescription className="text-center text-lg">
-              Access your TourEase account.
+              Akses akun TourEase Anda.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -117,7 +117,7 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="you@example.com" {...field} />
+                        <Input type="email" placeholder="anda@contoh.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -129,7 +129,7 @@ export default function LoginPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>Kata Sandi</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="••••••••" {...field} />
                       </FormControl>
@@ -140,7 +140,7 @@ export default function LoginPage() {
                 
                 <Button type="submit" className="w-full text-lg py-6" disabled={isLoading || isGoogleLoading}>
                   {isLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
-                  Login
+                  Masuk
                 </Button>
               </form>
             </Form>
@@ -151,7 +151,7 @@ export default function LoginPage() {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
+                  Atau lanjutkan dengan
                 </span>
               </div>
             </div>
@@ -167,14 +167,14 @@ export default function LoginPage() {
             
             {!isFirebaseConfigured && (
               <p className="mt-2 text-xs text-center text-destructive/80">
-                Google Login is unavailable. The app is not fully configured.
+                Login Google tidak tersedia. Aplikasi belum terkonfigurasi sepenuhnya.
               </p>
             )}
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
+              Belum punya akun?{" "}
               <Link href="/register" className="font-semibold text-primary hover:underline">
-                Register
+                Daftar
               </Link>
             </p>
           </CardContent>

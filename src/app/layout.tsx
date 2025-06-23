@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'TourEase - Your AI Powered Travel Planner',
-  description: 'Discover personalized travel destinations in Indonesia with TourEase.',
+  title: 'TourEase - Perencana Perjalanan AI Anda',
+  description: 'Temukan destinasi wisata yang dipersonalisasi di Indonesia dengan TourEase.',
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="id">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

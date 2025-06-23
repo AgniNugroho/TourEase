@@ -26,14 +26,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Loader2, Search } from "lucide-react";
 import type { PersonalizedDestinationInput } from "@/ai/flows/personalized-destination-recommendation";
 
-const budgetOptions = ["low", "medium", "high"];
-const travelStyleOptions = ["solo", "family", "couple", "friends", "business"];
+const budgetOptions = ["rendah", "sedang", "tinggi"];
+const travelStyleOptions = ["solo", "keluarga", "pasangan", "teman", "bisnis"];
 
 const preferenceFormSchema = z.object({
-  budget: z.string().min(1, "Budget is required."),
-  interests: z.string().min(3, "Please describe your interests (e.g., nature, culture, adventure)."),
-  travelStyle: z.string().min(1, "Travel style is required."),
-  location: z.string().min(2, "Your current location is required (e.g., city, country)."),
+  budget: z.string().min(1, "Anggaran wajib diisi."),
+  interests: z.string().min(3, "Silakan deskripsikan minat Anda (misalnya, alam, budaya, petualangan)."),
+  travelStyle: z.string().min(1, "Gaya perjalanan wajib diisi."),
+  location: z.string().min(2, "Lokasi Anda saat ini wajib diisi (misalnya, kota, negara)."),
 });
 
 type PreferenceFormValues = z.infer<typeof preferenceFormSchema>;
@@ -61,9 +61,9 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-xl">
       <CardHeader>
-        <CardTitle className="text-3xl font-headline text-center text-primary">Plan Your Dream Trip to Indonesia!</CardTitle>
+        <CardTitle className="text-3xl font-headline text-center text-primary">Rencanakan Perjalanan Impian Anda ke Indonesia!</CardTitle>
         <CardDescription className="text-center text-lg">
-          Tell us your preferences, and our AI will find the perfect destinations for you.
+          Beri tahu kami preferensi Anda, dan AI kami akan menemukan destinasi yang sempurna untuk Anda.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -74,11 +74,11 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
               name="budget"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">Budget</FormLabel>
+                  <FormLabel className="text-lg">Anggaran</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select your budget range" />
+                        <SelectValue placeholder="Pilih rentang anggaran Anda" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -90,7 +90,7 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    How much are you planning to spend?
+                    Berapa banyak yang Anda rencanakan untuk dibelanjakan?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -102,16 +102,16 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
               name="interests"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">Interests</FormLabel>
+                  <FormLabel className="text-lg">Minat</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., Beaches, Mountains, Historical sites, Culinary experiences, Wildlife..."
+                      placeholder="misalnya, Pantai, Pegunungan, Situs bersejarah, Pengalaman kuliner, Margasatwa..."
                       className="resize-none"
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    What kind of activities or places are you interested in?
+                    Aktivitas atau tempat seperti apa yang Anda minati?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -123,11 +123,11 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
               name="travelStyle"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">Travel Style</FormLabel>
+                  <FormLabel className="text-lg">Gaya Perjalanan</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select your travel style" />
+                        <SelectValue placeholder="Pilih gaya perjalanan Anda" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -139,7 +139,7 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Who are you traveling with?
+                    Dengan siapa Anda bepergian?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -151,12 +151,12 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">Your Current Location</FormLabel>
+                  <FormLabel className="text-lg">Lokasi Anda Saat Ini</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Jakarta, Indonesia or London, UK" {...field} />
+                    <Input placeholder="misalnya, Jakarta, Indonesia atau London, Inggris" {...field} />
                   </FormControl>
                   <FormDescription>
-                    This helps us estimate travel costs.
+                    Ini membantu kami memperkirakan biaya perjalanan.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -169,7 +169,7 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
               ) : (
                 <Search className="mr-2 h-6 w-6" />
               )}
-              Find My Destinations
+              Temukan Destinasi Saya
             </Button>
           </form>
         </Form>

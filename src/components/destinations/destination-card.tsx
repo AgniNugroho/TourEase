@@ -10,7 +10,7 @@ export interface Destination {
   name: string;
   description: string;
   estimatedCost: string;
-  imageUrl?: string; // Optional: if AI provides image URLs in future
+  imageUrl?: string;
 }
 
 interface DestinationCardProps {
@@ -20,7 +20,7 @@ interface DestinationCardProps {
 
 export function DestinationCard({ destination, onAskQuestion }: DestinationCardProps) {
   const placeholderImage = `https://placehold.co/600x400.png`;
-  const imageAlt = `Image of ${destination.name}`;
+  const imageAlt = `Gambar dari ${destination.name}`;
 
   return (
     <Card className="w-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col">
@@ -42,17 +42,17 @@ export function DestinationCard({ destination, onAskQuestion }: DestinationCardP
       <CardFooter className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-4 border-t">
         <div className="flex items-center text-sm text-muted-foreground">
           <DollarSign className="w-4 h-4 mr-1 text-primary" />
-          <span>Approximately {destination.estimatedCost}</span>
+          <span>Kira-kira {destination.estimatedCost}</span>
         </div>
         <Button
             variant="outline"
             size="sm"
             onClick={() => onAskQuestion(destination.name)}
-            aria-label={`Ask a question about ${destination.name}`}
+            aria-label={`Tanya pertanyaan tentang ${destination.name}`}
             className="bg-accent hover:bg-accent/90 text-accent-foreground"
           >
             <Info className="w-4 h-4 mr-2" />
-            Ask AI Assistant
+            Tanya Asisten AI
         </Button>
       </CardFooter>
     </Card>

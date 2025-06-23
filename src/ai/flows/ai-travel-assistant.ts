@@ -2,24 +2,24 @@
 'use server';
 
 /**
- * @fileOverview An AI travel assistant that answers user questions about travel destinations.
+ * @fileOverview Asisten perjalanan AI yang menjawab pertanyaan pengguna tentang destinasi wisata.
  *
- * - aiTravelAssistant - A function that handles the travel assistant process.
- * - AITravelAssistantInput - The input type for the aiTravelAssistant function.
- * - AITravelAssistantOutput - The return type for the aiTravelAssistant function.
+ * - aiTravelAssistant - Fungsi yang menangani proses asisten perjalanan.
+ * - AITravelAssistantInput - Tipe input untuk fungsi aiTravelAssistant.
+ * - AITravelAssistantOutput - Tipe kembalian untuk fungsi aiTravelAssistant.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AITravelAssistantInputSchema = z.object({
-  destination: z.string().describe('The travel destination the user is asking about.'),
-  question: z.string().describe('The user question about the travel destination.'),
+  destination: z.string().describe('Destinasi wisata yang ditanyakan oleh pengguna.'),
+  question: z.string().describe('Pertanyaan pengguna tentang destinasi wisata.'),
 });
 export type AITravelAssistantInput = z.infer<typeof AITravelAssistantInputSchema>;
 
 const AITravelAssistantOutputSchema = z.object({
-  answer: z.string().describe('The answer to the user question about the travel destination.'),
+  answer: z.string().describe('Jawaban atas pertanyaan pengguna tentang destinasi wisata.'),
 });
 export type AITravelAssistantOutput = z.infer<typeof AITravelAssistantOutputSchema>;
 
@@ -31,12 +31,12 @@ const prompt = ai.definePrompt({
   name: 'aiTravelAssistantPrompt',
   input: {schema: AITravelAssistantInputSchema},
   output: {schema: AITravelAssistantOutputSchema},
-  prompt: `You are a helpful AI travel assistant. You will answer user questions about travel destinations.
+  prompt: `Anda adalah asisten perjalanan AI yang membantu. Anda akan menjawab pertanyaan pengguna tentang destinasi wisata.
 
-Destination: {{{destination}}}
-Question: {{{question}}}
+Destinasi: {{{destination}}}
+Pertanyaan: {{{question}}}
 
-Answer:`, 
+Jawaban:`, 
 });
 
 const aiTravelAssistantFlow = ai.defineFlow(

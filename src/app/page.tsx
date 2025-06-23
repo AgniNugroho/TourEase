@@ -34,8 +34,8 @@ export default function HomePage() {
         setRecommendations(result.destinations);
         if (result.destinations.length === 0) {
            toast({
-            title: "No specific recommendations found",
-            description: "Try adjusting your preferences for different results.",
+            title: "Tidak ada rekomendasi spesifik yang ditemukan",
+            description: "Coba sesuaikan preferensi Anda untuk hasil yang berbeda.",
           });
         }
       } else {
@@ -44,11 +44,11 @@ export default function HomePage() {
     } catch (error) {
       console.error("Error getting personalized destinations:", error);
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-      setRecommendationsError(`Failed to fetch recommendations: ${errorMessage}`);
+      setRecommendationsError(`Gagal mengambil rekomendasi: ${errorMessage}`);
       toast({
         variant: "destructive",
-        title: "Error Fetching Recommendations",
-        description: `Could not get recommendations. ${errorMessage}`,
+        title: "Gagal Mengambil Rekomendasi",
+        description: `Tidak dapat mengambil rekomendasi. ${errorMessage}`,
       });
     } finally {
       setIsLoadingRecommendations(false);
@@ -56,31 +56,10 @@ export default function HomePage() {
   };
 
   const handleAskQuestionOnDestination = (destinationName: string) => {
-    setChatInitialDestination(destinationName); // This will trigger useEffect in AIChatWidget
-    // To directly open the chat, you might need a ref to AIChatWidget or a more global state for chat open status
-    // For now, setting initial destination will prepare the chat. The user still clicks the chat button.
-    // A more advanced solution would be to pass a function to AIChatWidget to imperatively open it.
-    // Or have AIChatWidget always rendered and control its visibility via a state managed here.
-    // For simplicity, let's assume `AIChatWidget` manages its open state and picks up `initialDestination`.
-    // The AIChatWidget now has a button that is always visible when the sheet is closed.
-    // We can trigger a "click" on that button or make the sheet open programmatically.
-    // Updated AIChatWidget to open and set context when initialDestination changes and sheet is opened.
-    // We need a way to tell the widget to open.
-    // A simple way: click the button programmatically if one exists. Or pass an `isOpen` prop.
-    // Let's pass an `initialDestination` which the chat widget can use to pre-fill context IF it's opened.
-    // The user will still need to click the chat icon.
-    // If a more direct "open chat for this destination" is needed, a ref or context is better.
-    // Updated DestinationCard to pass name to this handler.
-    // Updated AIChatWidget to accept initialDestination and set context if open.
-    
-    // To make it more interactive, let's find the chat trigger button and click it.
-    // This is a bit hacky. A ref to an imperative handle on AIChatWidget is cleaner.
-    // Given the current setup, this direct DOM manipulation is not ideal.
-    // The AIChatWidget will now handle the `initialDestination` prop correctly when user opens it.
-    // The toast provides a hint.
+    setChatInitialDestination(destinationName); 
      toast({
-        title: `AI Assistant Ready for ${destinationName}`,
-        description: `Click the chat icon to ask questions about ${destinationName}.`,
+        title: `Asisten AI Siap untuk ${destinationName}`,
+        description: `Klik ikon obrolan untuk mengajukan pertanyaan tentang ${destinationName}.`,
       });
   };
 
@@ -96,17 +75,17 @@ export default function HomePage() {
         {isLoadingRecommendations && (
           <div className="flex flex-col items-center justify-center text-center my-12 p-8 rounded-lg bg-card shadow-md">
             <Loader2 className="h-16 w-16 animate-spin text-primary mb-6" />
-            <p className="text-2xl font-headline text-primary">Finding your perfect trip...</p>
-            <p className="text-muted-foreground mt-2">Our AI is curating the best destinations based on your preferences.</p>
+            <p className="text-2xl font-headline text-primary">Mencari perjalanan sempurna Anda...</p>
+            <p className="text-muted-foreground mt-2">AI kami sedang menyusun destinasi terbaik berdasarkan preferensi Anda.</p>
           </div>
         )}
 
         {recommendationsError && (
            <Alert variant="destructive" className="my-8 max-w-2xl mx-auto">
             <AlertTriangle className="h-5 w-5" />
-            <AlertTitle className="font-headline text-xl">Oops! Something went wrong.</AlertTitle>
+            <AlertTitle className="font-headline text-xl">Oops! Terjadi kesalahan.</AlertTitle>
             <AlertDescription>
-              {recommendationsError} Please try adjusting your preferences or try again later.
+              {recommendationsError} Silakan coba sesuaikan preferensi Anda atau coba lagi nanti.
             </AlertDescription>
           </Alert>
         )}

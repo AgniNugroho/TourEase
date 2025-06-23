@@ -1,10 +1,10 @@
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for providing personalized travel destination recommendations based on user preferences.
+ * @fileOverview File ini mendefinisikan alur Genkit untuk memberikan rekomendasi destinasi wisata yang dipersonalisasi berdasarkan preferensi pengguna.
  *
- * - getPersonalizedDestinations - A function that takes user preferences and returns a list of recommended destinations.
- * - PersonalizedDestinationInput - The input type for the getPersonalizedDestinations function.
- * - PersonalizedDestinationOutput - The output type for the getPersonalizedDestinations function.
+ * - getPersonalizedDestinations - Fungsi yang menerima preferensi pengguna dan mengembalikan daftar destinasi yang direkomendasikan.
+ * - PersonalizedDestinationInput - Tipe input untuk fungsi getPersonalizedDestinations.
+ * - PersonalizedDestinationOutput - Tipe output untuk fungsi getPersonalizedDestinations.
  */
 
 import {ai} from '@/ai/genkit';
@@ -13,14 +13,14 @@ import {z} from 'genkit';
 const PersonalizedDestinationInputSchema = z.object({
   budget: z
     .string()
-    .describe('The user budget for the trip (e.g., low, medium, high).'),
+    .describe('Anggaran pengguna untuk perjalanan (misalnya, rendah, sedang, tinggi).'),
   interests: z
     .string()
-    .describe('The user interests (e.g., nature, culture, adventure).'),
+    .describe('Minat pengguna (misalnya, alam, budaya, petualangan).'),
   travelStyle: z
     .string()
-    .describe('The user preferred travel style (e.g., solo, family, couple).'),
-  location: z.string().describe('The current user location.'),
+    .describe('Gaya perjalanan pilihan pengguna (misalnya, solo, keluarga, pasangan).'),
+  location: z.string().describe('Lokasi pengguna saat ini.'),
 });
 
 export type PersonalizedDestinationInput = z.infer<
@@ -31,13 +31,13 @@ export type PersonalizedDestinationInput = z.infer<
 const DestinationTextInfoSchema = z.object({
   destinations: z.array(
     z.object({
-      name: z.string().describe('The name of the destination.'),
-      description: z.string().describe('A brief description of the destination.'),
+      name: z.string().describe('Nama destinasi.'),
+      description: z.string().describe('Deskripsi singkat tentang destinasi.'),
       estimatedCost: z
         .string()
-        .describe('The estimated cost of traveling to the destination from the user location.'),
+        .describe('Perkiraan biaya perjalanan ke destinasi dari lokasi pengguna.'),
     })
-  ).describe('A list of recommended travel destinations.'),
+  ).describe('Daftar destinasi wisata yang direkomendasikan.'),
 });
 
 
@@ -45,15 +45,15 @@ const DestinationTextInfoSchema = z.object({
 const PersonalizedDestinationOutputSchema = z.object({
   destinations: z.array(
     z.object({
-      name: z.string().describe('The name of the destination.'),
-      description: z.string().describe('A brief description of the destination.'),
+      name: z.string().describe('Nama destinasi.'),
+      description: z.string().describe('Deskripsi singkat tentang destinasi.'),
       estimatedCost: z
         .string()
-        .describe('The estimated cost of traveling to the destination from the user location.'),
-      imageUrl: z.string().url().optional().describe('An optional image of the destination.'),
+        .describe('Perkiraan biaya perjalanan ke destinasi dari lokasi pengguna.'),
+      imageUrl: z.string().url().optional().describe('Gambar opsional dari destinasi.'),
     })
   ).
-  describe('A list of recommended travel destinations, with optional images.'),
+  describe('Daftar destinasi wisata yang direkomendasikan, dengan gambar opsional.'),
 });
 
 export type PersonalizedDestinationOutput = z.infer<
@@ -71,19 +71,19 @@ const textPrompt = ai.definePrompt({
   name: 'personalizedDestinationTextPrompt',
   input: {schema: PersonalizedDestinationInputSchema},
   output: {schema: DestinationTextInfoSchema}, // Use the text-only schema here
-  prompt: `You are a travel expert specializing in Indonesian tourism.
+  prompt: `Anda adalah seorang ahli perjalanan yang berspesialisasi dalam pariwisata Indonesia.
 
-  Based on the user's preferences, recommend several travel destinations in Indonesia.
-  Also, include a brief description of each destination and the estimated cost from the user's location.
-  Use current travel blog resources to curate your recommendations.
+  Berdasarkan preferensi pengguna, rekomendasikan beberapa destinasi wisata di Indonesia.
+  Sertakan juga deskripsi singkat setiap destinasi dan perkiraan biaya dari lokasi pengguna.
+  Gunakan sumber daya blog perjalanan saat ini untuk menyusun rekomendasi Anda.
 
-  User Preferences:
-  - Budget: {{{budget}}}
-  - Interests: {{{interests}}}
-  - Travel Style: {{{travelStyle}}}
-  - Location: {{{location}}}
+  Preferensi Pengguna:
+  - Anggaran: {{{budget}}}
+  - Minat: {{{interests}}}
+  - Gaya Perjalanan: {{{travelStyle}}}
+  - Lokasi: {{{location}}}
 
-  Please provide the destinations in the following JSON format:
+  Harap berikan destinasi dalam format JSON berikut:
   {{$instructions}}`,
 });
 
@@ -106,7 +106,7 @@ const personalizedDestinationFlow = ai.defineFlow(
             try {
                 const { media } = await ai.generate({
                     model: 'googleai/gemini-2.0-flash-preview-image-generation',
-                    prompt: `A beautiful, high-quality, realistic photograph of the travel destination: ${destination.name}, Indonesia.`,
+                    prompt: `Sebuah foto yang indah, berkualitas tinggi, dan realistis dari destinasi wisata: ${destination.name}, Indonesia.`,
                     config: {
                         responseModalities: ['TEXT', 'IMAGE'],
                     }
