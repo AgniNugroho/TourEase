@@ -75,7 +75,7 @@ export default function HomePage() {
         {isLoadingRecommendations && (
           <div className="flex flex-col items-center justify-center text-center my-12 p-8 rounded-lg bg-card shadow-md">
             <Loader2 className="h-16 w-16 animate-spin text-primary mb-6" />
-            <p className="text-2xl font-headline text-primary">Mencari perjalanan sempurna Anda...</p>
+            <p className="text-2xl font-headline text-primary">Mencari Rencana Perjalanan Anda...</p>
             <p className="text-muted-foreground mt-2">AI kami sedang menyusun destinasi terbaik berdasarkan preferensi Anda.</p>
           </div>
         )}
