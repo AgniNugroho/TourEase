@@ -61,9 +61,9 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-xl">
       <CardHeader>
-        <CardTitle className="text-3xl font-headline text-center text-primary">Rencanakan Perjalanan Impian Anda ke Indonesia!</CardTitle>
+        <CardTitle className="text-3xl font-headline text-center text-primary">Rencanakan Perjalanan Anda Bersama Kami!</CardTitle>
         <CardDescription className="text-center text-lg">
-          Beri tahu kami preferensi Anda, dan AI kami akan menemukan destinasi yang sempurna untuk Anda.
+          Beri tahu kami preferensi Anda, dan AI kami akan menemukan destinasi sempurna untuk Anda.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -89,9 +89,6 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Berapa banyak yang Anda rencanakan untuk dibelanjakan?
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -110,9 +107,6 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Aktivitas atau tempat seperti apa yang Anda minati?
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -139,7 +133,7 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Dengan siapa Anda bepergian?
+                    Dengan siapa Anda bepergian
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -155,9 +149,6 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
                   <FormControl>
                     <Input placeholder="misalnya, Jakarta, Indonesia atau London, Inggris" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Ini membantu kami memperkirakan biaya perjalanan.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -169,7 +160,7 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
               ) : (
                 <Search className="mr-2 h-6 w-6" />
               )}
-              Temukan Destinasi Saya
+              Temukan Destinasimu
             </Button>
           </form>
         </Form>

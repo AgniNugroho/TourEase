@@ -27,7 +27,7 @@ export function DestinationList({ destinations, onAskQuestion }: DestinationList
 
   return (
     <div className="mt-12">
-      <h2 className="text-4xl font-headline text-center mb-8 text-primary">Destinasi Personalisasi Anda</h2>
+      <h2 className="text-4xl font-headline text-center mb-8 text-primary">Pilihan Destinasi untuk Anda</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {destinations.map((dest, index) => (
           <DestinationCard
