@@ -50,10 +50,10 @@ const PersonalizedDestinationOutputSchema = z.object({
       estimatedCost: z
         .string()
         .describe('The estimated cost of traveling to the destination from the user location.'),
-      imageUrl: z.string().url().describe('A generated image of the destination as a data URI.'),
+      imageUrl: z.string().url().optional().describe('An optional image of the destination.'),
     })
   ).
-  describe('A list of recommended travel destinations with images.'),
+  describe('A list of recommended travel destinations, with optional images.'),
 });
 
 export type PersonalizedDestinationOutput = z.infer<
@@ -95,30 +95,12 @@ const personalizedDestinationFlow = ai.defineFlow(
   },
   async input => {
     // 1. Get text-based recommendations
-    const {output: textOutput} = await textPrompt(input);
-    if (!textOutput || !textOutput.destinations) {
+    const {output} = await textPrompt(input);
+    if (!output || !output.destinations) {
         return { destinations: [] };
     }
 
-    // 2. Generate an image for each destination in parallel
-    const destinationsWithImages = await Promise.all(
-      textOutput.destinations.map(async (destination) => {
-        const imagePrompt = `A beautiful, high-quality, realistic photograph of ${destination.name}, Indonesia. A top travel destination known for: ${destination.description}. a scenic view`;
-        const {media} = await ai.generate({
-          model: 'googleai/gemini-2.0-flash-preview-image-generation',
-          prompt: imagePrompt,
-          config: {
-            responseModalities: ['TEXT', 'IMAGE'],
-          },
-        });
-        
-        return {
-          ...destination,
-          imageUrl: media.url, // This will be a data URI
-        };
-      })
-    );
-
-    return { destinations: destinationsWithImages };
+    // The component will use placeholder images since imageUrl is not provided.
+    return { destinations: output.destinations };
   }
 );

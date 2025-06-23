@@ -11,7 +11,6 @@ export interface Destination {
   description: string;
   estimatedCost: string;
   imageUrl?: string; // Optional: if AI provides image URLs in future
-  imageHint?: string; // For placeholder image generation
 }
 
 interface DestinationCardProps {
@@ -31,7 +30,7 @@ export function DestinationCard({ destination, onAskQuestion }: DestinationCardP
           alt={imageAlt}
           layout="fill"
           objectFit="cover"
-          data-ai-hint={destination.imageHint || destination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
+          data-ai-hint={destination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
         />
       </div>
       <CardHeader className="pb-2">
