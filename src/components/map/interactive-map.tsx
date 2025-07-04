@@ -1,3 +1,4 @@
+
 "use client";
 
 import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from "@vis.gl/react-google-maps";
@@ -18,38 +19,68 @@ const popularIndonesianLocations = [
 export function InteractiveMap() {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<(typeof popularIndonesianLocations[0]) | null>(null);
+  const [authFailed, setAuthFailed] = useState(false);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (key) {
       setApiKey(key);
     }
+    
+    // Define the global callback for Google Maps authentication failures
+    (window as any).gm_authFailure = () => {
+      setAuthFailed(true);
+    };
+
+    return () => {
+      // Clean up the global callback when the component unmounts
+      delete (window as any).gm_authFailure;
+    };
   }, []);
+  
+  const ErrorDisplay = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <Card className="mt-8 shadow-lg">
+      <CardHeader>
+        <CardTitle className="text-2xl font-headline text-center flex items-center justify-center gap-2">
+          <MapIcon className="h-6 w-6 text-primary" />
+          Peta Destinasi Interaktif
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="text-center p-8">
+          <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
+          <p className="text-lg font-semibold text-destructive">{title}</p>
+          {children}
+      </CardContent>
+    </Card>
+  );
+
+  if (authFailed) {
+    return (
+      <ErrorDisplay title="Gagal Memuat Peta">
+        <p className="text-muted-foreground">
+          Terjadi masalah dengan Kunci API Google Maps Anda. Ini sering kali disebabkan karena penagihan belum diaktifkan untuk proyek Anda.
+        </p>
+        <p className="mt-4 text-sm">
+          Silakan periksa <a href="https://developers.google.com/maps/documentation/javascript/error-messages#billing-not-enabled-map-error" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">dokumentasi Google</a> dan pastikan penagihan telah diaktifkan di Google Cloud Console.
+        </p>
+      </ErrorDisplay>
+    );
+  }
 
   if (!apiKey) {
     return (
-      <Card className="mt-8 shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl font-headline text-center flex items-center justify-center gap-2">
-            <MapIcon className="h-6 w-6 text-primary" />
-            Peta Destinasi Interaktif
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center p-8">
-            <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
-            <p className="text-lg font-semibold text-destructive">Peta Tidak Tersedia</p>
-            <p className="text-muted-foreground">
-              Kunci API Google Maps tidak dikonfigurasi. Harap atur variabel lingkungan NEXT_PUBLIC_GOOGLE_MAPS_API_KEY.
-            </p>
-            <p className="mt-4 text-sm">Menampilkan representasi statis Indonesia untuk saat ini:</p>
-            <img 
-              src="https://placehold.co/800x400.png?text=Peta+Placeholder+Indonesia" 
-              alt="Peta placeholder Indonesia" 
-              className="mt-4 rounded-md shadow-md mx-auto"
-              data-ai-hint="map Indonesia"
-            />
-        </CardContent>
-      </Card>
+      <ErrorDisplay title="Peta Tidak Tersedia">
+        <p className="text-muted-foreground">
+          Kunci API Google Maps tidak dikonfigurasi. Harap atur variabel lingkungan NEXT_PUBLIC_GOOGLE_MAPS_API_KEY.
+        </p>
+        <p className="mt-4 text-sm">Menampilkan representasi statis Indonesia untuk saat ini:</p>
+        <img 
+          src="https://placehold.co/800x400.png?text=Peta+Placeholder+Indonesia" 
+          alt="Peta placeholder Indonesia" 
+          className="mt-4 rounded-md shadow-md mx-auto"
+          data-ai-hint="map Indonesia"
+        />
+      </ErrorDisplay>
     );
   }
 
@@ -109,3 +140,4 @@ export function InteractiveMap() {
     </Card>
   );
 }
+
