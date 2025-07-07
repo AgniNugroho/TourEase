@@ -64,27 +64,9 @@ export function AIChatWidget({ initialDestination }: AIChatWidgetProps) {
     setIsLoading(true);
 
     try {
-      let destinationToQuery = currentDestination;
-      let question = userMessage.text;
-
-      // Simple check if user specifies a destination in the query
-      const destMatch = userMessage.text.match(/about ([\w\s]+)[?,.]/i);
-      if (destMatch && destMatch[1]) {
-        destinationToQuery = destMatch[1].trim();
-      }
-      
-      if (!destinationToQuery) {
-         setMessages((prevMessages) => [
-          ...prevMessages,
-          { id: Date.now().toString() + '_ai_err', text: "Silakan tentukan destinasi yang ingin Anda tanyakan, atau pilih salah satu dari rekomendasi.", sender: "ai" },
-        ]);
-        setIsLoading(false);
-        return;
-      }
-
       const aiInput: AITravelAssistantInput = {
-        destination: destinationToQuery,
-        question: question,
+        destination: currentDestination,
+        question: userMessage.text,
       };
       const aiResponse: AITravelAssistantOutput = await aiTravelAssistant(aiInput);
 
@@ -192,11 +174,6 @@ export function AIChatWidget({ initialDestination }: AIChatWidgetProps) {
           </ScrollArea>
 
           <SheetFooter className="p-6 pt-2 border-t">
-            {!currentDestination && (
-               <div className="text-xs text-muted-foreground p-2 rounded-md bg-muted flex items-center gap-2 w-full mb-2">
-                 <Info size={16} /> Tip: Anda dapat bertanya tentang tempat tertentu dengan mengetik "Ceritakan tentang [nama destinasi]..."
-               </div>
-            )}
             <div className="flex w-full items-center gap-2">
               <Input
                 type="text"

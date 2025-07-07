@@ -31,9 +31,14 @@ const prompt = ai.definePrompt({
   name: 'aiTravelAssistantPrompt',
   input: {schema: AITravelAssistantInputSchema},
   output: {schema: AITravelAssistantOutputSchema},
-  prompt: `Anda adalah asisten perjalanan AI yang membantu. Anda akan menjawab pertanyaan pengguna tentang destinasi wisata.
+  prompt: `Anda adalah asisten perjalanan AI yang membantu. Anda akan menjawab pertanyaan pengguna tentang destinasi wisata di Indonesia.
 
-Destinasi: {{{destination}}}
+{{#if destination}}
+Fokus pada destinasi berikut: {{{destination}}}
+{{else}}
+Jawab pertanyaan pengguna secara umum. Jika pertanyaan menyebutkan destinasi tertentu, fokuslah jawaban Anda pada destinasi tersebut.
+{{/if}}
+
 Pertanyaan: {{{question}}}
 
 Jawaban:`, 
