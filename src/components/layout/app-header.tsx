@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { createUserDocument, type UserProfileData } from "@/services/userService";
 
 
 export function AppHeader() {
@@ -32,7 +33,26 @@ export function AppHeader() {
       setIsLoading(false);
       return;
     }
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        // This is the ideal place to ensure the user document exists in Firestore.
+        // It's idempotent (checks for existence first), so it's safe to call here.
+        // This runs when auth state is confirmed, avoiding timing-related permission errors.
+        const userProfile: UserProfileData = {
+          uid: currentUser.uid,
+          email: currentUser.email,
+          displayName: currentUser.displayName,
+          photoURL: currentUser.photoURL,
+          providerId: currentUser.providerData[0]?.providerId ?? 'unknown',
+        };
+        try {
+            await createUserDocument(userProfile);
+        } catch (error) {
+            console.error("Failed to ensure user document exists:", error);
+            // Optionally, show a toast to the user that something went wrong with their profile sync.
+            // toast({ variant: "destructive", title: "Gagal menyinkronkan profil" });
+        }
+      }
       setUser(currentUser);
       setIsLoading(false);
     });

@@ -24,7 +24,6 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
-import { createUserDocument, type UserProfileData } from "@/services/userService";
 
 const loginFormSchema = z.object({
   email: z.string().email("Silakan masukkan alamat email yang valid."),
@@ -103,15 +102,6 @@ export default function LoginPage() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
-      const userProfile: UserProfileData = {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        providerId: result.providerId || 'google.com',
-      };
-      await createUserDocument(userProfile);
       
       console.log("Google sign in successful, user:", user);
       toast({
