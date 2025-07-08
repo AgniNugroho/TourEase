@@ -100,16 +100,16 @@ export function AppHeader() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-auto p-1 flex items-center gap-2 focus-visible:ring-ring focus-visible:ring-2 rounded-full">
+                   <span className="hidden sm:inline-flex items-center gap-1">
+                      {user.displayName || "Pengguna"}
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                   </span>
                   <Avatar className="h-9 w-9 border-2 border-primary/50">
                     <AvatarImage src={user.photoURL ?? ""} alt={user.displayName ?? "Avatar Pengguna"} />
                     <AvatarFallback className="bg-secondary text-secondary-foreground font-bold">
                       {getInitials(user.displayName)}
                     </AvatarFallback>
                   </Avatar>
-                   <span className="hidden sm:inline-flex items-center gap-1">
-                      {user.displayName || "Pengguna"}
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                   </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
