@@ -23,16 +23,17 @@ import { AppFooter } from "@/components/layout/app-footer";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, type User } from "firebase/auth";
 import { createUserDocument } from "@/services/userService";
 
 const registerFormSchema = z.object({
+  name: z.string().min(2, "Nama lengkap wajib diisi."),
   email: z.string().email("Silakan masukkan alamat email yang valid."),
   password: z.string().min(8, "Kata sandi minimal 8 karakter."),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Kata sandi tidak cocok.",
-  path: ["confirmPassword"], // path of error
+  path: ["confirmPassword"],
 });
 
 type RegisterFormValues = z.infer<typeof registerFormSchema>;
@@ -46,6 +47,7 @@ export default function RegisterPage() {
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: ""
@@ -65,7 +67,12 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      await createUserDocument(userCredential.user);
+      
+      await updateProfile(userCredential.user, { displayName: values.name });
+      
+      const userWithDisplayName = { ...userCredential.user, displayName: values.name };
+
+      await createUserDocument(userWithDisplayName as User);
       
       toast({
         title: "Pendaftaran Berhasil",
@@ -103,6 +110,20 @@ export default function RegisterPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleRegisterSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nama Lengkap</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nama Anda" {...field} disabled={!isFirebaseConfigured || isLoading} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="email"
