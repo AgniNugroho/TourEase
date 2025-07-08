@@ -52,8 +52,11 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         const docId = selectedDestination.name.replace(/\//g, '_');
         const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
 
+        // Exclude the large imageUrl from the data being saved to Firestore
+        const { imageUrl, ...destinationToSave } = selectedDestination;
+
         await setDoc(destinationRef, {
-            ...selectedDestination,
+            ...destinationToSave,
             savedAt: serverTimestamp(),
         }, { merge: true });
 
