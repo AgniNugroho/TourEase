@@ -52,7 +52,6 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         const docId = selectedDestination.name.replace(/\//g, '_');
         const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
 
-        // Exclude the large imageUrl from the data being saved to Firestore
         const { imageUrl, ...destinationToSave } = selectedDestination;
 
         await setDoc(destinationRef, {
@@ -65,12 +64,26 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
             description: `${selectedDestination.name} telah ditambahkan ke daftar Anda.`,
         });
         handleCloseDialog();
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error saving destination to Firestore:", error);
+        let description = "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.";
+        
+        if (error.code) {
+            switch (error.code) {
+                case 'permission-denied':
+                    description = "Izin ditolak. Pastikan aturan keamanan Firestore Anda telah diterapkan dan mengizinkan penulisan.";
+                    break;
+                default:
+                    description = `Terjadi kesalahan Firebase: ${error.message} (kode: ${error.code})`;
+            }
+        } else if (error instanceof Error) {
+            description = error.message;
+        }
+
         toast({
             variant: "destructive",
             title: "Gagal Menyimpan",
-            description: "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.",
+            description: description,
         });
     } finally {
         setIsSaving(false);
