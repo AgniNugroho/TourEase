@@ -1,6 +1,10 @@
+
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { AppHeader } from "@/components/layout/app-header";
 import { AppFooter } from "@/components/layout/app-footer";
 import { PreferenceForm } from "@/components/forms/preference-form";
@@ -19,8 +23,29 @@ export default function HomePage() {
   const [chatInitialDestination, setChatInitialDestination] = useState<string | undefined>(undefined);
   const chatWidgetRef = useRef<{ openChatWithDestination: (destinationName: string) => void }>(null);
 
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const router = useRouter();
 
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!auth) {
+      setIsAuthLoading(false);
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthLoading && !user) {
+      router.push('/login');
+    }
+  }, [isAuthLoading, user, router]);
 
   const handlePreferencesSubmit = async (data: PersonalizedDestinationInput) => {
     setIsLoadingRecommendations(true);
@@ -61,6 +86,14 @@ export default function HomePage() {
       });
   };
 
+  if (isAuthLoading || !user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-primary">
+        <Loader2 className="h-16 w-16 animate-spin mb-4" />
+        <p className="text-xl font-headline">Memuat TourEase...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
