@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
-import { createUserDocument } from "@/services/userService";
+import { createUserDocument, type UserProfileData } from "@/services/userService";
 
 const loginFormSchema = z.object({
   email: z.string().email("Silakan masukkan alamat email yang valid."),
@@ -102,19 +102,30 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      await createUserDocument(result.user);
+      const user = result.user;
+
+      const userProfile: UserProfileData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        providerId: result.providerId || 'google.com',
+      };
+      await createUserDocument(userProfile);
       
-      console.log("Google sign in successful, user:", result.user);
+      console.log("Google sign in successful, user:", user);
       toast({
         title: "Berhasil Masuk",
-        description: `Selamat datang kembali, ${result.user.displayName}!`,
+        description: `Selamat datang kembali, ${user.displayName}!`,
       });
       router.push('/');
     } catch (error: any) {
       console.error("Google login error:", error);
-      let description = error.message;
+      let description = "Terjadi kesalahan saat masuk dengan Google.";
       if (error.code === 'auth/popup-closed-by-user') {
         description = "Jendela login ditutup sebelum otentikasi selesai."
+      } else if (typeof error.message === 'string') {
+        description = error.message;
       }
       toast({
         variant: "destructive",

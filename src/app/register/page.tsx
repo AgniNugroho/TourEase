@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { createUserDocument } from "@/services/userService";
+import { createUserDocument, type UserProfileData } from "@/services/userService";
 
 const registerFormSchema = z.object({
   name: z.string().min(2, "Nama lengkap wajib diisi."),
@@ -66,10 +66,18 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
       
-      await updateProfile(userCredential.user, { displayName: values.name });
+      await updateProfile(user, { displayName: values.name });
       
-      await createUserDocument(userCredential.user);
+      const userProfile: UserProfileData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: values.name,
+        photoURL: user.photoURL,
+        providerId: 'password',
+      };
+      await createUserDocument(userProfile);
       
       toast({
         title: "Pendaftaran Berhasil",

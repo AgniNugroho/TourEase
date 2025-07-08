@@ -3,14 +3,22 @@
 
 import { db } from "@/lib/firebase";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import type { User } from "firebase/auth";
+
+export interface UserProfileData {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  providerId: string;
+}
+
 
 /**
  * Creates a new user document in Firestore if one doesn't already exist.
  * This is useful for both new registrations and first-time social logins.
- * @param user The Firebase Auth User object from a successful sign-in or registration.
+ * @param user The plain user profile data object.
  */
-export async function createUserDocument(user: User): Promise<void> {
+export async function createUserDocument(user: UserProfileData): Promise<void> {
   // Ensure Firestore is initialized
   if (!db) {
     console.error("Firestore is not initialized. Skipping user document creation.");
@@ -24,15 +32,8 @@ export async function createUserDocument(user: User): Promise<void> {
 
   // Only create the document if it doesn't already exist
   if (!userSnapshot.exists()) {
-    const { uid, email, displayName, photoURL, providerData } = user;
-    const providerId = providerData[0]?.providerId || 'password';
-    
     const newUserProfile = {
-      uid,
-      email,
-      displayName,
-      photoURL,
-      providerId,
+      ...user,
       createdAt: serverTimestamp(),
     };
 
