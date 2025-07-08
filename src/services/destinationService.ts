@@ -1,4 +1,6 @@
 
+"use client";
+
 import { db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import type { Destination } from "@/components/destinations/destination-card";
