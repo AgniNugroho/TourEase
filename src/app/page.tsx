@@ -123,7 +123,7 @@ export default function HomePage() {
 
         {recommendations && !isLoadingRecommendations && (
           <section id="recommendations" className="my-12">
-            <DestinationList destinations={recommendations} onAskQuestion={handleAskQuestionOnDestination} />
+            <DestinationList user={user} destinations={recommendations} onAskQuestion={handleAskQuestionOnDestination} />
           </section>
         )}
         

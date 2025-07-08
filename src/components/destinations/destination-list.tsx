@@ -5,7 +5,7 @@ import { useState } from "react";
 import Image from "next/image";
 import type { PersonalizedDestinationOutput } from "@/ai/flows/personalized-destination-recommendation";
 import { DestinationCard, type Destination } from "./destination-card";
-import { Lightbulb, DollarSign, Info } from "lucide-react";
+import { Lightbulb, DollarSign, Info, Bookmark, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Dialog,
@@ -16,14 +16,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import type { User } from "firebase/auth";
+import { useToast } from "@/hooks/use-toast";
+import { saveDestination } from "@/services/destinationService";
 
 interface DestinationListProps {
   destinations?: PersonalizedDestinationOutput["destinations"];
   onAskQuestion: (destinationName: string) => void;
+  user: User | null;
 }
 
-export function DestinationList({ destinations, onAskQuestion }: DestinationListProps) {
+export function DestinationList({ destinations, onAskQuestion, user }: DestinationListProps) {
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
 
   const handleViewDetails = (destination: Destination) => {
     setSelectedDestination(destination);
@@ -32,6 +38,30 @@ export function DestinationList({ destinations, onAskQuestion }: DestinationList
   const handleCloseDialog = () => {
     setSelectedDestination(null);
   };
+  
+  const handleSaveDestination = async () => {
+    if (!user || !selectedDestination) return;
+
+    setIsSaving(true);
+    try {
+        await saveDestination(user.uid, selectedDestination);
+        toast({
+            title: "Destinasi Disimpan!",
+            description: `${selectedDestination.name} telah ditambahkan ke daftar Anda.`,
+        });
+        handleCloseDialog();
+    } catch (error) {
+        console.error(error);
+        toast({
+            variant: "destructive",
+            title: "Gagal Menyimpan",
+            description: "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.",
+        });
+    } finally {
+        setIsSaving(false);
+    }
+  };
+
 
   if (!destinations || destinations.length === 0) {
     return (
@@ -89,16 +119,29 @@ export function DestinationList({ destinations, onAskQuestion }: DestinationList
                         <span className="font-semibold text-foreground">Kira-kira {selectedDestination.estimatedCost}</span>
                     </div>
                 </div>
-                <DialogFooter className="p-6 pt-4 border-t bg-muted/50">
+                <DialogFooter className="p-6 pt-4 border-t bg-muted/50 flex-col sm:flex-row sm:justify-end gap-2">
                     <Button
                         onClick={() => {
                             onAskQuestion(selectedDestination.name);
                             handleCloseDialog();
                         }}
-                        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                        className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
                     >
                         <Info className="w-4 h-4 mr-2" />
                         Tanya Asisten AI
+                    </Button>
+                    <Button
+                        onClick={handleSaveDestination}
+                        disabled={isSaving}
+                        className="w-full sm:w-auto"
+                        variant="outline"
+                    >
+                        {isSaving ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                            <Bookmark className="w-4 h-4 mr-2" />
+                        )}
+                        Simpan
                     </Button>
                 </DialogFooter>
             </DialogContent>

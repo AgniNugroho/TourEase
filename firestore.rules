@@ -2,10 +2,15 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow users to create and read their own user document.
-    // This is necessary for registration and login to save user profiles.
+
+    // Allow users to read and create their own user document.
     match /users/{userId} {
-      allow read, create: if request.auth != null && request.auth.uid == userId;
+      allow read, create: if request.auth.uid == userId;
+    }
+    
+    // Allow users to manage their saved destinations
+    match /users/{userId}/savedDestinations/{destinationId} {
+      allow read, write, delete: if request.auth.uid == userId;
     }
   }
 }
