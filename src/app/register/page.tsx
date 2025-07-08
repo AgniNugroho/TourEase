@@ -23,7 +23,7 @@ import { AppFooter } from "@/components/layout/app-footer";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
-import { createUserWithEmailAndPassword, updateProfile, type User } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { createUserDocument } from "@/services/userService";
 
 const registerFormSchema = z.object({
@@ -68,11 +68,11 @@ export default function RegisterPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       
+      // Update the user's profile with their name in Firebase Auth
       await updateProfile(userCredential.user, { displayName: values.name });
       
-      const userWithDisplayName = { ...userCredential.user, displayName: values.name };
-
-      await createUserDocument(userWithDisplayName as User);
+      // Create the user document in Firestore, passing the user object directly
+      await createUserDocument(userCredential.user);
       
       toast({
         title: "Pendaftaran Berhasil",
