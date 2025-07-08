@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview File ini mendefinisikan alur Genkit untuk memberikan rekomendasi destinasi wisata yang dipersonalisasi berdasarkan preferensi pengguna.
@@ -13,7 +14,7 @@ import {z} from 'genkit';
 const PersonalizedDestinationInputSchema = z.object({
   budget: z
     .string()
-    .describe('Anggaran pengguna untuk perjalanan (misalnya, rendah, sedang, tinggi).'),
+    .describe('Anggaran pengguna untuk perjalanan (misalnya, Dibawah Rp 1.000.000, Rp 1.000.000 - Rp 5.000.000, Diatas Rp 5.000.000).'),
   interests: z
     .string()
     .describe('Minat pengguna (misalnya, alam, budaya, petualangan).'),

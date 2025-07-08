@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +27,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Loader2, Search } from "lucide-react";
 import type { PersonalizedDestinationInput } from "@/ai/flows/personalized-destination-recommendation";
 
-const budgetOptions = ["rendah", "sedang", "tinggi"];
+const budgetOptions = [
+  "Dibawah Rp 1.000.000",
+  "Rp 1.000.000 - Rp 5.000.000",
+  "Diatas Rp 5.000.000",
+];
 const travelStyleOptions = ["solo", "keluarga", "pasangan", "teman", "bisnis"];
 
 const preferenceFormSchema = z.object({
@@ -83,8 +88,8 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
                     </FormControl>
                     <SelectContent>
                       {budgetOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="capitalize">
-                          {option.charAt(0).toUpperCase() + option.slice(1)}
+                        <SelectItem key={option} value={option}>
+                          {option}
                         </SelectItem>
                       ))}
                     </SelectContent>
