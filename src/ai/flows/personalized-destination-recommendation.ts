@@ -18,9 +18,9 @@ const PersonalizedDestinationInputSchema = z.object({
   interests: z
     .string()
     .describe('Minat pengguna (misalnya, alam, budaya, petualangan).'),
-  travelStyle: z
+  numberOfPeople: z
     .string()
-    .describe('Gaya perjalanan pilihan pengguna (misalnya, solo, keluarga, pasangan).'),
+    .describe('Jumlah orang yang akan bepergian (misalnya, 1 orang, 2 orang, 3-5 orang).'),
   location: z.string().describe('Lokasi pengguna saat ini.'),
 });
 
@@ -81,7 +81,7 @@ const textPrompt = ai.definePrompt({
   Preferensi Pengguna:
   - Anggaran: {{{budget}}}
   - Minat: {{{interests}}}
-  - Gaya Perjalanan: {{{travelStyle}}}
+  - Jumlah Orang: {{{numberOfPeople}}}
   - Lokasi: {{{location}}}
 
   Harap berikan destinasi dalam format JSON berikut:

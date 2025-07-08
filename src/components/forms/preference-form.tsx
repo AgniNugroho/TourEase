@@ -32,12 +32,17 @@ const budgetOptions = [
   "Rp 1.000.000 - Rp 5.000.000",
   "Diatas Rp 5.000.000",
 ];
-const travelStyleOptions = ["solo", "keluarga", "pasangan", "teman", "bisnis"];
+const numberOfPeopleOptions = [
+  "1 orang",
+  "2 orang",
+  "3-5 orang",
+  "Lebih dari 5 orang",
+];
 
 const preferenceFormSchema = z.object({
   budget: z.string().min(1, "Anggaran wajib diisi."),
   interests: z.string().min(3, "Silakan deskripsikan minat Anda (misalnya, alam, budaya, petualangan)."),
-  travelStyle: z.string().min(1, "Gaya perjalanan wajib diisi."),
+  numberOfPeople: z.string().min(1, "Jumlah orang wajib diisi."),
   location: z.string().min(2, "Lokasi Anda saat ini wajib diisi (misalnya, kota, negara)."),
 });
 
@@ -54,7 +59,7 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
     defaultValues: {
       budget: "",
       interests: "",
-      travelStyle: "",
+      numberOfPeople: "",
       location: "",
     },
   });
@@ -119,27 +124,24 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
 
             <FormField
               control={form.control}
-              name="travelStyle"
+              name="numberOfPeople"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">Gaya Perjalanan</FormLabel>
+                  <FormLabel className="text-lg">Jumlah Orang</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Pilih gaya perjalanan Anda" />
+                        <SelectValue placeholder="Pilih jumlah orang yang bepergian" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {travelStyleOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="capitalize">
-                          {option.charAt(0).toUpperCase() + option.slice(1)}
+                      {numberOfPeopleOptions.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Dengan siapa Anda bepergian
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
