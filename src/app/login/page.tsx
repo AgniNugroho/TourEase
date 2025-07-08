@@ -22,8 +22,9 @@ import { AppHeader } from "@/components/layout/app-header";
 import { AppFooter } from "@/components/layout/app-footer";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
+import { createUserDocument } from "@/services/userService";
 
 const loginFormSchema = z.object({
   email: z.string().email("Silakan masukkan alamat email yang valid."),
@@ -55,14 +56,38 @@ export default function LoginPage() {
     },
   });
 
-  const handleLoginSubmit = (values: LoginFormValues) => {
+  const handleLoginSubmit = async (values: LoginFormValues) => {
+    if (!isFirebaseConfigured) {
+        toast({
+            variant: "destructive",
+            title: "Kesalahan Konfigurasi",
+            description: "Firebase tidak dikonfigurasi. Fitur login dinonaktifkan.",
+        });
+        return;
+    }
+
     setIsLoading(true);
-    console.log("Login submitted with:", values);
-    // Placeholder for actual login logic
-    setTimeout(() => {
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: "Berhasil Masuk",
+        description: "Selamat datang kembali!",
+      });
+      router.push('/');
+    } catch (error: any) {
+      console.error("Login error:", error);
+      let description = "Terjadi kesalahan yang tidak diketahui.";
+       if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        description = "Email atau kata sandi salah. Silakan coba lagi.";
+      }
+      toast({
+        variant: "destructive",
+        title: "Gagal Masuk",
+        description,
+      });
+    } finally {
       setIsLoading(false);
-      // On success, you would redirect the user
-    }, 2000);
+    }
   };
   
   const handleGoogleLogin = async () => {
@@ -78,18 +103,25 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
+      await createUserDocument(result.user);
+      
       console.log("Google sign in successful, user:", result.user);
       toast({
         title: "Berhasil Masuk",
         description: `Selamat datang kembali, ${result.user.displayName}!`,
       });
       router.push('/');
-    } catch (error: any) {
+    } catch (error: any)
+     {
       console.error("Google login error:", error);
+      let description = error.message;
+      if (error.code === 'auth/popup-closed-by-user') {
+        description = "Jendela login ditutup sebelum otentikasi selesai."
+      }
       toast({
         variant: "destructive",
         title: "Gagal Masuk",
-        description: error.message,
+        description: description,
       });
     } finally {
       setIsGoogleLoading(false);
@@ -117,7 +149,7 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="anda@contoh.com" {...field} />
+                        <Input type="email" placeholder="anda@contoh.com" {...field} disabled={!isFirebaseConfigured || isLoading || isGoogleLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -131,14 +163,14 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Kata Sandi</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input type="password" placeholder="••••••••" {...field} disabled={!isFirebaseConfigured || isLoading || isGoogleLoading}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 
-                <Button type="submit" className="w-full text-lg py-6" disabled={isLoading || isGoogleLoading}>
+                <Button type="submit" className="w-full text-lg py-6" disabled={!isFirebaseConfigured || isLoading || isGoogleLoading}>
                   {isLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
                   Masuk
                 </Button>
@@ -167,7 +199,7 @@ export default function LoginPage() {
             
             {!isFirebaseConfigured && (
               <p className="mt-2 text-xs text-center text-destructive/80">
-                Login Google tidak tersedia. Aplikasi belum terkonfigurasi sepenuhnya.
+                Login tidak tersedia. Aplikasi belum terkonfigurasi sepenuhnya.
               </p>
             )}
 

@@ -20,6 +20,11 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { AppHeader } from "@/components/layout/app-header";
 import { AppFooter } from "@/components/layout/app-footer";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { auth } from "@/lib/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserDocument } from "@/services/userService";
 
 const registerFormSchema = z.object({
   email: z.string().email("Silakan masukkan alamat email yang valid."),
@@ -34,7 +39,9 @@ type RegisterFormValues = z.infer<typeof registerFormSchema>;
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
-  // Add state for error handling if needed in the future
+  const router = useRouter();
+  const { toast } = useToast();
+  const isFirebaseConfigured = !!auth;
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
@@ -45,14 +52,41 @@ export default function RegisterPage() {
     },
   });
 
-  const handleRegisterSubmit = (values: RegisterFormValues) => {
+  const handleRegisterSubmit = async (values: RegisterFormValues) => {
+    if (!isFirebaseConfigured) {
+      toast({
+        variant: "destructive",
+        title: "Kesalahan Konfigurasi",
+        description: "Firebase tidak dikonfigurasi. Fitur registrasi dinonaktifkan.",
+      });
+      return;
+    }
+    
     setIsLoading(true);
-    console.log("Register submitted with:", values);
-    // Placeholder for actual registration logic
-    setTimeout(() => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      await createUserDocument(userCredential.user);
+      
+      toast({
+        title: "Pendaftaran Berhasil",
+        description: "Akun Anda telah berhasil dibuat. Selamat datang di TourEase!",
+      });
+      router.push("/");
+
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      let description = "Terjadi kesalahan yang tidak diketahui.";
+      if (error.code === 'auth/email-already-in-use') {
+        description = "Alamat email ini sudah terdaftar.";
+      }
+      toast({
+        variant: "destructive",
+        title: "Gagal Mendaftar",
+        description,
+      });
+    } finally {
       setIsLoading(false);
-      // On success, you would redirect the user, probably to login
-    }, 2000);
+    }
   };
 
   return (
@@ -76,7 +110,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="anda@contoh.com" {...field} />
+                        <Input type="email" placeholder="anda@contoh.com" {...field} disabled={!isFirebaseConfigured || isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -90,7 +124,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Kata Sandi</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input type="password" placeholder="••••••••" {...field} disabled={!isFirebaseConfigured || isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -104,19 +138,24 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Konfirmasi Kata Sandi</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input type="password" placeholder="••••••••" {...field} disabled={!isFirebaseConfigured || isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 
-                <Button type="submit" className="w-full text-lg py-6" disabled={isLoading}>
+                <Button type="submit" className="w-full text-lg py-6" disabled={!isFirebaseConfigured || isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
                   Daftar
                 </Button>
               </form>
             </Form>
+             {!isFirebaseConfigured && (
+              <p className="mt-4 text-xs text-center text-destructive/80">
+                Registrasi tidak tersedia. Aplikasi belum terkonfigurasi sepenuhnya.
+              </p>
+            )}
              <p className="mt-6 text-center text-sm text-muted-foreground">
               Sudah punya akun?{" "}
               <Link href="/login" className="font-semibold text-primary hover:underline">
