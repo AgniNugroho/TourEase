@@ -1,14 +1,15 @@
 
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Users can create, read, and update their own user document
     match /users/{userId} {
-      // Allow users to create, read, and update their own profile document.
-      allow read, create, update: if request.auth.uid == userId;
+      allow read, create, update: if request.auth != null && request.auth.uid == userId;
 
-      // Allow users to manage (read, write, delete) their own saved destinations.
-      match /savedDestinations/{destinationId} {
-        allow read, write, delete: if request.auth.uid == userId;
+      // Users can read and write to their own subcollections (e.g., savedDestinations)
+      match /{documents=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
   }
