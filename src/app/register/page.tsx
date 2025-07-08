@@ -76,9 +76,9 @@ export default function RegisterPage() {
       
       toast({
         title: "Pendaftaran Berhasil",
-        description: "Akun Anda telah berhasil dibuat. Silakan masuk.",
+        description: "Selamat datang di TourEase! Anda akan diarahkan ke halaman utama.",
       });
-      router.push("/login");
+      router.push("/");
 
     } catch (error: any) {
       console.error("Registration error:", error);
