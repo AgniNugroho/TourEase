@@ -42,7 +42,6 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const isFirebaseConfigured = !!auth;
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
@@ -55,7 +54,7 @@ export default function RegisterPage() {
   });
 
   const handleRegisterSubmit = async (values: RegisterFormValues) => {
-    if (!isFirebaseConfigured) {
+    if (!auth) {
       toast({
         variant: "destructive",
         title: "Kesalahan Konfigurasi",
@@ -68,10 +67,8 @@ export default function RegisterPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       
-      // Update the user's profile with their name in Firebase Auth
       await updateProfile(userCredential.user, { displayName: values.name });
       
-      // Create the user document in Firestore, passing the user object directly
       await createUserDocument(userCredential.user);
       
       toast({
@@ -117,7 +114,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Nama Lengkap</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nama Anda" {...field} disabled={!isFirebaseConfigured || isLoading} />
+                        <Input placeholder="Nama Anda" {...field} disabled={!auth || isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -131,7 +128,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="anda@contoh.com" {...field} disabled={!isFirebaseConfigured || isLoading} />
+                        <Input type="email" placeholder="anda@contoh.com" {...field} disabled={!auth || isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -145,7 +142,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Kata Sandi</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} disabled={!isFirebaseConfigured || isLoading} />
+                        <Input type="password" placeholder="••••••••" {...field} disabled={!auth || isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -159,20 +156,20 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Konfirmasi Kata Sandi</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} disabled={!isFirebaseConfigured || isLoading} />
+                        <Input type="password" placeholder="••••••••" {...field} disabled={!auth || isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 
-                <Button type="submit" className="w-full text-lg py-6" disabled={!isFirebaseConfigured || isLoading}>
+                <Button type="submit" className="w-full text-lg py-6" disabled={!auth || isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
                   Daftar
                 </Button>
               </form>
             </Form>
-             {!isFirebaseConfigured && (
+             {!auth && (
               <p className="mt-4 text-xs text-center text-destructive/80">
                 Registrasi tidak tersedia. Aplikasi belum terkonfigurasi sepenuhnya.
               </p>

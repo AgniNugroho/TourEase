@@ -46,7 +46,6 @@ export default function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const isFirebaseConfigured = !!auth;
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -57,7 +56,7 @@ export default function LoginPage() {
   });
 
   const handleLoginSubmit = async (values: LoginFormValues) => {
-    if (!isFirebaseConfigured) {
+    if (!auth) {
         toast({
             variant: "destructive",
             title: "Kesalahan Konfigurasi",
@@ -148,7 +147,7 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="anda@contoh.com" {...field} disabled={!isFirebaseConfigured || isLoading || isGoogleLoading} />
+                        <Input type="email" placeholder="anda@contoh.com" {...field} disabled={!auth || isLoading || isGoogleLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -162,14 +161,14 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Kata Sandi</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} disabled={!isFirebaseConfigured || isLoading || isGoogleLoading}/>
+                        <Input type="password" placeholder="••••••••" {...field} disabled={!auth || isLoading || isGoogleLoading}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 
-                <Button type="submit" className="w-full text-lg py-6" disabled={!isFirebaseConfigured || isLoading || isGoogleLoading}>
+                <Button type="submit" className="w-full text-lg py-6" disabled={!auth || isLoading || isGoogleLoading}>
                   {isLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
                   Masuk
                 </Button>
@@ -187,7 +186,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button variant="outline" className="w-full text-lg py-6" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading || !isFirebaseConfigured}>
+            <Button variant="outline" className="w-full text-lg py-6" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading || !auth}>
               {isGoogleLoading ? (
                 <Loader2 className="mr-2 h-6 w-6 animate-spin" />
               ) : (
@@ -196,7 +195,7 @@ export default function LoginPage() {
               Google
             </Button>
             
-            {!isFirebaseConfigured && (
+            {!auth && (
               <p className="mt-2 text-xs text-center text-destructive/80">
                 Login tidak tersedia. Aplikasi belum terkonfigurasi sepenuhnya.
               </p>
