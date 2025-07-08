@@ -111,8 +111,7 @@ export default function LoginPage() {
         description: `Selamat datang kembali, ${result.user.displayName}!`,
       });
       router.push('/');
-    } catch (error: any)
-     {
+    } catch (error: any) {
       console.error("Google login error:", error);
       let description = error.message;
       if (error.code === 'auth/popup-closed-by-user') {
