@@ -18,7 +18,8 @@ import {
 import { Button } from "@/components/ui/button";
 import type { User } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
-import { saveDestination } from "@/services/destinationService";
+import { db } from "@/lib/firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 interface DestinationListProps {
   destinations?: PersonalizedDestinationOutput["destinations"];
@@ -44,14 +45,25 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
 
     setIsSaving(true);
     try {
-        await saveDestination(user.uid, selectedDestination);
+        if (!db) {
+            throw new Error("Penyimpanan gagal: basis data tidak dikonfigurasi.");
+        }
+        
+        const docId = selectedDestination.name.replace(/\//g, '_');
+        const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
+
+        await setDoc(destinationRef, {
+            ...selectedDestination,
+            savedAt: serverTimestamp(),
+        }, { merge: true });
+
         toast({
             title: "Destinasi Disimpan!",
             description: `${selectedDestination.name} telah ditambahkan ke daftar Anda.`,
         });
         handleCloseDialog();
     } catch (error) {
-        console.error(error);
+        console.error("Error saving destination to Firestore:", error);
         toast({
             variant: "destructive",
             title: "Gagal Menyimpan",
