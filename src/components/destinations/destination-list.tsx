@@ -144,7 +144,7 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
                 <div className="px-6 pb-6">
                     <div className="flex items-center mt-4 text-lg p-3 rounded-lg bg-secondary/50">
                         <DollarSign className="w-5 h-5 mr-3 text-primary" />
-                        <span className="font-semibold text-foreground">Kira-kira {selectedDestination.estimatedCost}</span>
+                        <span className="font-semibold text-foreground">{selectedDestination.estimatedCost}</span>
                     </div>
                 </div>
                 <DialogFooter className="p-6 pt-4 border-t bg-muted/50 flex-col sm:flex-row sm:justify-end gap-2">
