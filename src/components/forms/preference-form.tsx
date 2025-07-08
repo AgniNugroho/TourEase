@@ -41,9 +41,9 @@ const numberOfPeopleOptions = [
 
 const preferenceFormSchema = z.object({
   budget: z.string().min(1, "Anggaran wajib diisi."),
-  interests: z.string().min(3, "Silakan deskripsikan minat Anda (misalnya, alam, budaya, petualangan)."),
+  interests: z.string().min(3, "Silakan deskripsikan minat Anda."),
   numberOfPeople: z.string().min(1, "Jumlah orang wajib diisi."),
-  location: z.string().min(2, "Lokasi Anda saat ini wajib diisi (misalnya, kota, negara)."),
+  location: z.string().min(2, "Lokasi Anda saat ini wajib diisi"),
 });
 
 type PreferenceFormValues = z.infer<typeof preferenceFormSchema>;
@@ -109,10 +109,10 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
               name="interests"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">Minat</FormLabel>
+                  <FormLabel className="text-lg">Deskripsi Lokasi</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="misalnya, Pantai, Pegunungan, Situs bersejarah, Pengalaman kuliner, Margasatwa..."
+                      placeholder=" "
                       className="resize-none"
                       {...field}
                     />
@@ -154,7 +154,7 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
                 <FormItem>
                   <FormLabel className="text-lg">Lokasi Anda Saat Ini</FormLabel>
                   <FormControl>
-                    <Input placeholder="misalnya, Jakarta, Indonesia atau London, Inggris" {...field} />
+                    <Input placeholder=" " {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
