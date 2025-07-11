@@ -1,5 +1,5 @@
 import { db } from "@/lib/firebase";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, collection, getDocs, query, orderBy } from "firebase/firestore";
 
 export interface UserProfileData {
   uid: string;
@@ -7,6 +7,7 @@ export interface UserProfileData {
   displayName: string | null;
   photoURL: string | null;
   providerId: string;
+  createdAt?: any;
 }
 
 
@@ -42,4 +43,32 @@ export async function createUserDocument(user: UserProfileData): Promise<void> {
       throw new Error("Could not create user profile in database.");
     }
   }
+}
+
+/**
+ * Fetches all user profiles from Firestore.
+ * This function should only be called from a secured context (e.g., an admin page).
+ * @returns A promise that resolves to an array of user profiles.
+ */
+export async function getAllUsers(): Promise<UserProfileData[]> {
+    if (!db) {
+        throw new Error("Pengambilan data gagal: basis data tidak dikonfigurasi.");
+    }
+
+    const usersCollectionRef = collection(db, "users");
+    const q = query(usersCollectionRef, orderBy("createdAt", "desc"));
+
+    try {
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            uid: doc.id,
+            ...data,
+          } as UserProfileData;
+        });
+    } catch (error) {
+        console.error("Error fetching all users from Firestore:", error);
+        throw new Error("Gagal mengambil data pengguna dari basis data.");
+    }
 }

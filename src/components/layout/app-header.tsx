@@ -1,7 +1,7 @@
 
 "use client";
 
-import { MountainSnow, LogOut, ChevronDown, Search, Bookmark, History } from "lucide-react";
+import { MountainSnow, LogOut, ChevronDown, Search, Bookmark, History, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -140,6 +140,15 @@ export function AppHeader() {
                   <History className="mr-2 h-4 w-4" />
                   <span>Riwayat Pencarian</span>
                 </DropdownMenuItem>
+                {user.email === 'admin@tourease.com' && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => router.push('/admin')} className="cursor-pointer text-primary">
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        <span>Panel Admin</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
