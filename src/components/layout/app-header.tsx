@@ -84,7 +84,7 @@ export function AppHeader() {
 
 
   return (
-    <header className="py-6 px-4 md:px-8 bg-primary/10 shadow-md sticky top-0 z-40">
+    <header className="py-6 px-4 md:px-8 bg-background shadow-md sticky top-0 z-40">
       <div className="container mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
           <MountainSnow className="h-8 w-8" />
