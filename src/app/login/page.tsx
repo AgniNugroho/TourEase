@@ -134,9 +134,6 @@ export default function LoginPage() {
         <Card className="w-full max-w-md shadow-xl">
           <CardHeader>
             <CardTitle className="text-3xl font-headline text-center text-primary">Masuk</CardTitle>
-            <CardDescription className="text-center text-lg">
-              Akses akun TourEase Anda.
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>

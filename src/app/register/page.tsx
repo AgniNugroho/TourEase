@@ -98,9 +98,6 @@ export default function RegisterPage() {
         <Card className="w-full max-w-md shadow-xl">
           <CardHeader>
             <CardTitle className="text-3xl font-headline text-center text-primary">Buat Akun</CardTitle>
-            <CardDescription className="text-center text-lg">
-              Bergabunglah dengan TourEase untuk mulai merencanakan perjalanan Anda.
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
