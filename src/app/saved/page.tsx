@@ -152,7 +152,7 @@ export default function SavedDestinationsPage() {
       
       {selectedDestination && (
         <Dialog open={!!selectedDestination} onOpenChange={(isOpen) => !isOpen && handleCloseDialog()}>
-          <DialogContent className="sm:max-w-lg p-0 overflow-hidden rounded-lg">
+          <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-lg">
             <div className="relative w-full h-56 md:h-64">
               <Image
                 src={selectedDestination.imageUrl || `https://placehold.co/600x400.png`}
