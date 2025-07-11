@@ -1,7 +1,7 @@
 
 "use client";
 
-import { MountainSnow, LogOut, ChevronDown, Search } from "lucide-react";
+import { MountainSnow, LogOut, ChevronDown, Search, Bookmark } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -133,6 +133,11 @@ export function AppHeader() {
                     </p>
                   </div>
                 </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                 <DropdownMenuItem onClick={() => router.push('/saved')} className="cursor-pointer">
+                  <Bookmark className="mr-2 h-4 w-4" />
+                  <span>Destinasi Tersimpan</span>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
