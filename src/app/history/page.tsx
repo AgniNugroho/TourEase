@@ -7,7 +7,7 @@ import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { AppHeader } from "@/components/layout/app-header";
 import { AppFooter } from "@/components/layout/app-footer";
-import { Loader2, AlertTriangle, Frown, History, ChevronsRight, Eye, ChevronRight, Bookmark } from "lucide-react";
+import { Loader2, AlertTriangle, Frown, History, Eye } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { getSearchHistory, type SearchHistoryEntry } from "@/services/historyService";
@@ -23,8 +23,8 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import { DestinationList } from "@/components/destinations/destination-list";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 export default function HistoryPage() {
   const [history, setHistory] = useState<SearchHistoryEntry[]>([]);

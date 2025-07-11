@@ -67,10 +67,23 @@ export async function getSearchHistory(userId: string): Promise<SearchHistoryEnt
   
   try {
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as SearchHistoryEntry[];
+    const historyEntries = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        // Here we need to simulate the imageUrl for display purposes in history
+        const destinationsWithPlaceholderImages = data.destinations.map((dest: any) => ({
+            ...dest,
+            // Since imageUrl is not saved, we can provide a placeholder or leave it undefined.
+            // Let's leave it undefined so the DestinationCard can handle it.
+            imageUrl: undefined 
+        }));
+
+        return {
+            id: doc.id,
+            ...data,
+            destinations: destinationsWithPlaceholderImages,
+        } as SearchHistoryEntry;
+    });
+    return historyEntries;
   } catch (error) {
     console.error("Error fetching search history from Firestore:", error);
     throw new Error("Gagal mengambil riwayat pencarian dari basis data.");
