@@ -32,6 +32,8 @@ export default function SearchPage() {
   useEffect(() => {
     if (!auth) {
       setIsAuthLoading(false);
+      // If firebase is not configured, we can't check auth, so we redirect.
+      router.push('/login');
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -39,7 +41,7 @@ export default function SearchPage() {
       setIsAuthLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!isAuthLoading && !user) {

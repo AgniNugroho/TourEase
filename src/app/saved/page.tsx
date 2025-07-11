@@ -35,7 +35,8 @@ export default function SavedDestinationsPage() {
 
   useEffect(() => {
     if (!auth) {
-      setIsLoading(false);
+      // If firebase is not configured, redirect to login as this page is protected.
+      router.push('/login');
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -82,6 +83,10 @@ export default function SavedDestinationsPage() {
         }
       };
       fetchSavedDestinations();
+    } else if (!user) {
+        // This case handles when the user logs out on this page.
+        // The auth state listener will redirect, but we also stop loading here.
+        setIsLoading(false);
     }
   }, [user, toast]);
   
@@ -93,7 +98,8 @@ export default function SavedDestinationsPage() {
     setSelectedDestination(null);
   };
   
-  if (isLoading) {
+  // Display a loading screen while auth is being checked or data is being fetched.
+  if (isLoading || !user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background text-primary">
         <Loader2 className="h-16 w-16 animate-spin mb-4" />
