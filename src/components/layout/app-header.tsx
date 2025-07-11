@@ -1,13 +1,13 @@
 
 "use client";
 
-import { MountainSnow, LogOut, ChevronDown } from "lucide-react";
+import { MountainSnow, LogOut, ChevronDown, Search } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { auth } from "@/lib/firebase";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -20,12 +20,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createUserDocument, type UserProfileData } from "@/services/userService";
+import { toast as sonnerToast } from "sonner";
 
 
 export function AppHeader() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -35,9 +37,6 @@ export function AppHeader() {
     }
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        // This is the ideal place to ensure the user document exists in Firestore.
-        // It's idempotent (checks for existence first), so it's safe to call here.
-        // This runs when auth state is confirmed, avoiding timing-related permission errors.
         const userProfile: UserProfileData = {
           uid: currentUser.uid,
           email: currentUser.email,
@@ -49,8 +48,11 @@ export function AppHeader() {
             await createUserDocument(userProfile);
         } catch (error) {
             console.error("Failed to ensure user document exists:", error);
-            // Optionally, show a toast to the user that something went wrong with their profile sync.
-            // toast({ variant: "destructive", title: "Gagal menyinkronkan profil" });
+            toast({ 
+              variant: "destructive", 
+              title: "Gagal menyinkronkan profil",
+              description: "Tidak dapat membuat profil Anda di database. Beberapa fitur mungkin tidak berfungsi."
+            });
         }
       }
       setUser(currentUser);
@@ -84,17 +86,25 @@ export function AppHeader() {
 
 
   return (
-    <header className="py-6 px-4 md:px-8 bg-primary/10 shadow-md">
+    <header className="py-6 px-4 md:px-8 bg-primary/10 shadow-md sticky top-0 z-40">
       <div className="container mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
           <MountainSnow className="h-8 w-8" />
           <h1 className="text-3xl font-headline font-bold">TourEase</h1>
         </Link>
-        <nav className="flex items-center">
+        <nav className="flex items-center gap-2">
+            {pathname !== "/search" && (
+                 <Button asChild variant="ghost">
+                    <Link href="/search">
+                        <Search className="mr-2 h-4 w-4" />
+                        Cari Destinasi
+                    </Link>
+                </Button>
+            )}
           {isLoading ? (
              <div className="flex items-center gap-2">
                 <Skeleton className="h-10 w-24" />
-                <Skeleton className="h-10 w-24" />
+                <Skeleton className="h-10 w-10 rounded-full" />
             </div>
           ) : user ? (
             <DropdownMenu>

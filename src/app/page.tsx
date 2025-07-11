@@ -1,141 +1,54 @@
 
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { AppHeader } from "@/components/layout/app-header";
 import { AppFooter } from "@/components/layout/app-footer";
-import { PreferenceForm } from "@/components/forms/preference-form";
-import { DestinationList } from "@/components/destinations/destination-list";
-import { AIChatWidget } from "@/components/chat/ai-chat-widget";
-import { getPersonalizedDestinations, type PersonalizedDestinationInput, type PersonalizedDestinationOutput } from "@/ai/flows/personalized-destination-recommendation";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { InteractiveMap } from "@/components/map/interactive-map";
+import Image from "next/image";
 
 export default function HomePage() {
-  const [recommendations, setRecommendations] = useState<PersonalizedDestinationOutput["destinations"] | undefined>(undefined);
-  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
-  const [recommendationsError, setRecommendationsError] = useState<string | null>(null);
-  
-  const [chatInitialDestination, setChatInitialDestination] = useState<string | undefined>(undefined);
-  const chatWidgetRef = useRef<{ openChatWithDestination: (destinationName: string) => void }>(null);
-
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const router = useRouter();
-
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (!auth) {
-      setIsAuthLoading(false);
-      return;
-    }
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setIsAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!isAuthLoading && !user) {
-      router.push('/login');
-    }
-  }, [isAuthLoading, user, router]);
-
-  const handlePreferencesSubmit = async (data: PersonalizedDestinationInput) => {
-    setIsLoadingRecommendations(true);
-    setRecommendationsError(null);
-    setRecommendations(undefined); // Clear previous recommendations
-    try {
-      const result = await getPersonalizedDestinations(data);
-      if (result && result.destinations) {
-        setRecommendations(result.destinations);
-        if (result.destinations.length === 0) {
-           toast({
-            title: "Tidak ada rekomendasi spesifik yang ditemukan",
-            description: "Coba sesuaikan preferensi Anda untuk hasil yang berbeda.",
-          });
-        }
-      } else {
-        throw new Error("No destinations found in AI response.");
-      }
-    } catch (error) {
-      console.error("Error getting personalized destinations:", error);
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-      setRecommendationsError(`Gagal mengambil rekomendasi: ${errorMessage}`);
-      toast({
-        variant: "destructive",
-        title: "Gagal Mengambil Rekomendasi",
-        description: `Tidak dapat mengambil rekomendasi. ${errorMessage}`,
-      });
-    } finally {
-      setIsLoadingRecommendations(false);
-    }
-  };
-
-  const handleAskQuestionOnDestination = (destinationName: string) => {
-    setChatInitialDestination(destinationName); 
-     toast({
-        title: `Asisten AI Siap untuk ${destinationName}`,
-        description: `Klik ikon obrolan untuk mengajukan pertanyaan tentang ${destinationName}.`,
-      });
-  };
-
-  if (isAuthLoading || !user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-primary">
-        <Loader2 className="h-16 w-16 animate-spin mb-4" />
-        <p className="text-xl font-headline">Memuat TourEase...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <AppHeader />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <section id="planner" className="mb-16">
-          <PreferenceForm onSubmit={handlePreferencesSubmit} isLoading={isLoadingRecommendations} />
+      <main className="flex-grow">
+        {/* Hero Section */}
+        <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center text-center text-white bg-black/40">
+           <Image
+            src="https://placehold.co/1920x1080.png"
+            alt="Pemandangan indah dari destinasi wisata di Indonesia"
+            layout="fill"
+            objectFit="cover"
+            className="absolute -z-10"
+            data-ai-hint="beautiful landscape Indonesia"
+            priority
+          />
+          <div className="relative z-10 p-4">
+            <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 drop-shadow-lg">
+              Temukan Perjalanan Impian Anda
+            </h1>
+            <p className="text-lg md:text-2xl mb-8 max-w-2xl mx-auto drop-shadow-md">
+              Biarkan AI membantu Anda merencanakan petualangan tak terlupakan di seluruh Indonesia.
+            </p>
+            <Button asChild size="lg" className="text-lg py-7 px-8 bg-accent hover:bg-accent/90 text-accent-foreground">
+              <Link href="/search">
+                Mulai Rencanakan Sekarang <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
         </section>
 
-        {isLoadingRecommendations && (
-          <div className="flex flex-col items-center justify-center text-center my-12 p-8 rounded-lg bg-card shadow-md">
-            <Loader2 className="h-16 w-16 animate-spin text-primary mb-6" />
-            <p className="text-2xl font-headline text-primary">Mencari Rencana Perjalanan Anda...</p>
-            <p className="text-muted-foreground mt-2">AI kami sedang menyusun destinasi terbaik berdasarkan preferensi Anda.</p>
-          </div>
-        )}
-
-        {recommendationsError && (
-           <Alert variant="destructive" className="my-8 max-w-2xl mx-auto">
-            <AlertTriangle className="h-5 w-5" />
-            <AlertTitle className="font-headline text-xl">Oops! Terjadi kesalahan.</AlertTitle>
-            <AlertDescription>
-              {recommendationsError} Silakan coba sesuaikan preferensi Anda atau coba lagi nanti.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {recommendations && !isLoadingRecommendations && (
-          <section id="recommendations" className="my-12">
-            <DestinationList user={user} destinations={recommendations} onAskQuestion={handleAskQuestionOnDestination} />
-          </section>
-        )}
-        
-        {(recommendations === undefined && !isLoadingRecommendations && !recommendationsError) && (
-           <div className="mt-8 text-center py-10">
-             {/* Placeholder for initial state or when form hasn't been submitted yet */}
-           </div>
-        )}
+        {/* Interactive Map Section */}
+        <section id="explore" className="py-16 bg-background">
+            <div className="container mx-auto px-4">
+                <InteractiveMap />
+            </div>
+        </section>
 
       </main>
-      
-      <AIChatWidget initialDestination={chatInitialDestination} />
       <AppFooter />
     </div>
   );
