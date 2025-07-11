@@ -1,7 +1,7 @@
 
 "use client";
 
-import { MountainSnow, LogOut, ChevronDown, Search, Bookmark } from "lucide-react";
+import { MountainSnow, LogOut, ChevronDown, Search, Bookmark, History } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -20,8 +20,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createUserDocument, type UserProfileData } from "@/services/userService";
-import { toast as sonnerToast } from "sonner";
-
 
 export function AppHeader() {
   const [user, setUser] = useState<User | null>(null);
@@ -59,7 +57,7 @@ export function AppHeader() {
       setIsLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
   
   const handleLogout = async () => {
     if (auth) {
@@ -137,6 +135,10 @@ export function AppHeader() {
                  <DropdownMenuItem onClick={() => router.push('/saved')} className="cursor-pointer">
                   <Bookmark className="mr-2 h-4 w-4" />
                   <span>Destinasi Tersimpan</span>
+                </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => router.push('/history')} className="cursor-pointer">
+                  <History className="mr-2 h-4 w-4" />
+                  <span>Riwayat Pencarian</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">

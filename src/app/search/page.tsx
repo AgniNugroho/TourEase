@@ -14,6 +14,7 @@ import { getPersonalizedDestinations, type PersonalizedDestinationInput, type Pe
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, AlertTriangle, Lightbulb } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { saveSearchHistory } from "@/services/historyService";
 
 export default function SearchPage() {
   const [recommendations, setRecommendations] = useState<PersonalizedDestinationOutput["destinations"] | undefined>(undefined);
@@ -32,7 +33,6 @@ export default function SearchPage() {
   useEffect(() => {
     if (!auth) {
       setIsAuthLoading(false);
-      // If firebase is not configured, we can't check auth, so we redirect.
       router.push('/login');
       return;
     }
@@ -52,7 +52,7 @@ export default function SearchPage() {
   const handlePreferencesSubmit = async (data: PersonalizedDestinationInput) => {
     setIsLoadingRecommendations(true);
     setRecommendationsError(null);
-    setRecommendations(undefined); // Clear previous recommendations
+    setRecommendations(undefined);
     try {
       const result = await getPersonalizedDestinations(data);
       if (result && result.destinations) {
@@ -63,6 +63,17 @@ export default function SearchPage() {
             description: "Coba sesuaikan preferensi Anda untuk hasil yang berbeda.",
           });
         }
+        
+        // Save to history if user is logged in
+        if (user) {
+          try {
+            await saveSearchHistory(user.uid, data, result.destinations);
+          } catch(historyError) {
+             console.error("Failed to save search history:", historyError);
+             // We don't show a toast for this, to not bother the user with a non-critical error
+          }
+        }
+
       } else {
         throw new Error("No destinations found in AI response.");
       }
