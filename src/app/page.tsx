@@ -4,11 +4,48 @@
 import { AppHeader } from "@/components/layout/app-header";
 import { AppFooter } from "@/components/layout/app-footer";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!auth) {
+      setIsAuthLoading(false);
+      // If firebase is not configured, we can't check auth, so we redirect.
+      router.push('/login');
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, [router]);
+
+  useEffect(() => {
+    if (!isAuthLoading && !user) {
+      router.push('/login');
+    }
+  }, [isAuthLoading, user, router]);
+
+  if (isAuthLoading || !user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-primary">
+        <Loader2 className="h-16 w-16 animate-spin mb-4" />
+        <p className="text-xl font-headline">Memuat Halaman Utama...</p>
+      </div>
+    );
+  }
+
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-800">
