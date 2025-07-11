@@ -16,10 +16,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, MountainSnow } from "lucide-react";
 import Link from "next/link";
-import { AppHeader } from "@/components/layout/app-header";
-import { AppFooter } from "@/components/layout/app-footer";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
@@ -128,9 +126,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <AppHeader />
-      <main className="flex-grow flex items-center justify-center container mx-auto px-4 py-8">
+    <div className="flex flex-col min-h-screen bg-background items-center justify-center p-4">
+        <Link href="/" className="flex items-center gap-2 text-primary mb-8">
+            <MountainSnow className="h-8 w-8" />
+            <h1 className="text-3xl font-headline font-bold">TourEase</h1>
+        </Link>
         <Card className="w-full max-w-md shadow-xl">
           <CardHeader>
             <CardTitle className="text-3xl font-headline text-center text-primary">Masuk</CardTitle>
@@ -178,7 +178,7 @@ export default function LoginPage() {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
+                <span className="bg-card px-2 text-muted-foreground">
                   Atau lanjutkan dengan
                 </span>
               </div>
@@ -207,8 +207,6 @@ export default function LoginPage() {
             </p>
           </CardContent>
         </Card>
-      </main>
-      <AppFooter />
     </div>
   );
 }
