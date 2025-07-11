@@ -1,7 +1,7 @@
 
 "use client";
 
-import { MountainSnow, LogOut, ChevronDown, Search, Bookmark, History, ShieldCheck } from "lucide-react";
+import { MountainSnow, LogOut, ChevronDown, Search, Bookmark, History, ShieldCheck, Home } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -64,7 +64,7 @@ export function AppHeader() {
       try {
         await signOut(auth);
         toast({ title: "Berhasil Keluar", description: "Anda telah berhasil keluar." });
-        router.push('/');
+        router.push('/login');
         router.refresh();
       } catch (error) {
         console.error("Logout error:", error);
@@ -132,15 +132,26 @@ export function AppHeader() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                 <DropdownMenuItem onClick={() => router.push('/saved')} className="cursor-pointer">
-                  <Bookmark className="mr-2 h-4 w-4" />
-                  <span>Destinasi Tersimpan</span>
-                </DropdownMenuItem>
-                 <DropdownMenuItem onClick={() => router.push('/history')} className="cursor-pointer">
-                  <History className="mr-2 h-4 w-4" />
-                  <span>Riwayat Pencarian</span>
-                </DropdownMenuItem>
-                {user.email === 'admin@tourease.com' && (
+                {user.email === 'admin@tourease.com' ? (
+                  <>
+                     <DropdownMenuItem onClick={() => router.push('/')} className="cursor-pointer">
+                        <Home className="mr-2 h-4 w-4" />
+                        <span>Halaman Utama</span>
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                   <>
+                    <DropdownMenuItem onClick={() => router.push('/saved')} className="cursor-pointer">
+                      <Bookmark className="mr-2 h-4 w-4" />
+                      <span>Destinasi Tersimpan</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push('/history')} className="cursor-pointer">
+                      <History className="mr-2 h-4 w-4" />
+                      <span>Riwayat Pencarian</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                 {pathname !== '/admin' && user.email === 'admin@tourease.com' && (
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => router.push('/admin')} className="cursor-pointer text-primary">
