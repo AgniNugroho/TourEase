@@ -64,12 +64,18 @@ export default function LoginPage() {
 
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({
         title: "Berhasil Masuk",
         description: "Selamat datang kembali!",
       });
-      router.push('/');
+
+      if (userCredential.user.email === 'admin@tourease.com') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
+
     } catch (error: any) {
       console.error("Login error:", error);
       let description = "Terjadi kesalahan yang tidak diketahui.";
@@ -106,7 +112,13 @@ export default function LoginPage() {
         title: "Berhasil Masuk",
         description: `Selamat datang kembali, ${user.displayName}!`,
       });
-      router.push('/');
+      
+      if (user.email === 'admin@tourease.com') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
+
     } catch (error: any) {
       console.error("Google login error:", error);
       let description = "Terjadi kesalahan saat masuk dengan Google.";
