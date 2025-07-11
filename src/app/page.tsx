@@ -11,7 +11,7 @@ import Image from "next/image";
 export default function HomePage() {
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-800">
       <AppHeader />
       <main className="flex-grow">
         {/* Hero Section */}
