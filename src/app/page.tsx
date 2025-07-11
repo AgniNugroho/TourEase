@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { InteractiveMap } from "@/components/map/interactive-map";
 
 export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -48,17 +49,17 @@ export default function HomePage() {
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-800">
+    <div className="flex flex-col min-h-screen bg-background">
       <AppHeader />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative h-[80vh] flex items-center justify-center text-center bg-gray-100 dark:bg-gray-800">
+        <section className="relative h-[70vh] flex items-center justify-center text-center bg-gray-100 dark:bg-gray-800">
            <Image
             src="https://placehold.co/1920x1080.png"
             alt="Pemandangan indah dari destinasi wisata di Indonesia"
             layout="fill"
             objectFit="cover"
-            className="absolute -z-10 opacity-20"
+            className="absolute z-0 opacity-20"
             data-ai-hint="beautiful landscape Indonesia"
             priority
           />
@@ -75,6 +76,10 @@ export default function HomePage() {
               </Link>
             </Button>
           </div>
+        </section>
+
+        <section id="map-section" className="container mx-auto px-4 py-8">
+            <InteractiveMap />
         </section>
 
       </main>
