@@ -23,7 +23,7 @@ interface UserChartData {
     "Pengguna Baru": number;
 }
 
-interface InterestChartData {
+interface PieChartData {
     name: string;
     value: number;
 }
@@ -33,7 +33,7 @@ const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3
 
 export default function AdminPage() {
   const [userChartData, setUserChartData] = useState<UserChartData[]>([]);
-  const [interestChartData, setInterestChartData] = useState<InterestChartData[]>([]);
+  const [destinationTypeChartData, setDestinationTypeChartData] = useState<PieChartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -92,22 +92,22 @@ export default function AdminPage() {
           
           setUserChartData(processedUserData);
 
-          // Process history data for pie chart
-          const interestCounts = allHistories.reduce((acc, history) => {
-             // Standardize the interest string: lowercase and trim whitespace
-            const interest = history.input.interests.trim().toLowerCase();
-            if(interest) {
-              acc[interest] = (acc[interest] || 0) + 1;
-            }
+          // Process history data for pie chart based on destinationType
+           const destinationTypeCounts = allHistories.reduce((acc, history) => {
+            history.destinations.forEach(destination => {
+              if (destination.destinationType) {
+                const type = destination.destinationType.trim();
+                acc[type] = (acc[type] || 0) + 1;
+              }
+            });
             return acc;
           }, {} as Record<string, number>);
           
-          const processedInterestData = Object.entries(interestCounts)
+          const processedDestinationTypeData = Object.entries(destinationTypeCounts)
             .map(([name, value]) => ({ name, value }))
             .sort((a, b) => b.value - a.value); // Sort by most popular
 
-          setInterestChartData(processedInterestData);
-
+          setDestinationTypeChartData(processedDestinationTypeData);
 
         } catch (err: any) {
           console.error("Error fetching or processing admin data:", err);
@@ -136,7 +136,7 @@ export default function AdminPage() {
           content={<ChartTooltipContent hideLabel />}
         />
         <Pie
-          data={interestChartData}
+          data={destinationTypeChartData}
           dataKey="value"
           nameKey="name"
           cx="50%"
@@ -144,14 +144,14 @@ export default function AdminPage() {
           outerRadius={110}
           fill="hsl(var(--primary))"
         >
-          {interestChartData.map((entry, index) => (
+          {destinationTypeChartData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
         <Legend />
       </PieChart>
     </ResponsiveContainer>
-  ), [interestChartData]);
+  ), [destinationTypeChartData]);
 
 
   if (!isAuthorized || isLoading) {
@@ -234,11 +234,11 @@ export default function AdminPage() {
 
                 <Card className="lg:col-span-2">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><PieChartIcon /> Tren Minat Pencarian</CardTitle>
-                        <CardDescription>Distribusi minat pencarian dari semua pengguna.</CardDescription>
+                        <CardTitle className="flex items-center gap-2"><PieChartIcon /> Tren Tipe Destinasi</CardTitle>
+                        <CardDescription>Distribusi tipe destinasi yang direkomendasikan.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {interestChartData.length > 0 ? (
+                        {destinationTypeChartData.length > 0 ? (
                            <div className="h-[400px] w-full flex items-center justify-center">
                             <ChartContainer config={{}} className="h-full w-full">
                                 {memoizedPieChart}
