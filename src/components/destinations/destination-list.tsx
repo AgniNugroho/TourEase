@@ -5,7 +5,7 @@ import { useState } from "react";
 import Image from "next/image";
 import type { PersonalizedDestinationOutput } from "@/ai/flows/personalized-destination-recommendation";
 import { DestinationCard, type Destination } from "./destination-card";
-import { DollarSign, Info, Bookmark, Loader2 } from "lucide-react";
+import { DollarSign, Info, Bookmark, Loader2, Tag } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import type { User } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebase";
@@ -126,8 +127,14 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
                         {selectedDestination.description}
                     </DialogDescription>
                 </div>
-                <div className="px-6 pb-6">
-                    <div className="flex items-center mt-4 text-lg p-3 rounded-lg bg-secondary/50">
+                <div className="px-6 pb-6 space-y-3">
+                    {selectedDestination.destinationType && (
+                        <div className="flex items-center text-md p-3 rounded-lg bg-secondary/30">
+                            <Tag className="w-5 h-5 mr-3 text-primary" />
+                            <span className="font-medium text-foreground/90">Tipe: {selectedDestination.destinationType}</span>
+                        </div>
+                    )}
+                    <div className="flex items-center text-lg p-3 rounded-lg bg-secondary/50">
                         <DollarSign className="w-5 h-5 mr-3 text-primary" />
                         <span className="font-semibold text-foreground">{selectedDestination.estimatedCost}</span>
                     </div>

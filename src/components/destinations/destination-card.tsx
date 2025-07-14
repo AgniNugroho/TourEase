@@ -4,12 +4,14 @@
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Eye, Tag } from "lucide-react";
 
 export interface Destination {
   name: string;
   description: string;
   estimatedCost: string;
+  destinationType: string;
   imageUrl?: string;
 }
 
@@ -32,6 +34,11 @@ export function DestinationCard({ destination, onViewDetails }: DestinationCardP
           objectFit="cover"
           data-ai-hint={destination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
         />
+         {destination.destinationType && (
+            <Badge variant="secondary" className="absolute top-2 right-2 shadow-md">
+                {destination.destinationType}
+            </Badge>
+        )}
       </div>
       <CardHeader className="pb-2">
         <CardTitle className="text-2xl font-headline text-primary">{destination.name}</CardTitle>

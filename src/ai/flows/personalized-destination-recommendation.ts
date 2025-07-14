@@ -37,6 +37,7 @@ const DestinationTextInfoSchema = z.object({
       estimatedCost: z
         .string()
         .describe('Perkiraan biaya perjalanan ke destinasi dari lokasi pengguna.'),
+      destinationType: z.string().describe('Tipe destinasi (misalnya, Pantai, Gunung, Museum, Kuliner).')
     })
   ).describe('Daftar destinasi wisata yang direkomendasikan.'),
 });
@@ -51,6 +52,7 @@ const PersonalizedDestinationOutputSchema = z.object({
       estimatedCost: z
         .string()
         .describe('Perkiraan biaya perjalanan ke destinasi dari lokasi pengguna.'),
+      destinationType: z.string().describe('Tipe destinasi (misalnya, Pantai, Gunung, Museum, Kuliner).'),
       imageUrl: z.string().url().optional().describe('Gambar opsional dari destinasi.'),
     })
   ).
@@ -75,7 +77,7 @@ const textPrompt = ai.definePrompt({
   prompt: `Anda adalah seorang ahli perjalanan yang berspesialisasi dalam pariwisata Indonesia.
 
   Berdasarkan preferensi pengguna, rekomendasikan beberapa destinasi wisata di Indonesia.
-  Sertakan juga deskripsi singkat setiap destinasi dan perkiraan biaya dari lokasi pengguna.
+  Sertakan juga deskripsi singkat setiap destinasi, perkiraan biaya dari lokasi pengguna, dan tipe destinasi (contoh: Pantai, Gunung, Museum, Kuliner, Sejarah).
   Gunakan sumber daya blog perjalanan saat ini untuk menyusun rekomendasi Anda.
 
   Preferensi Pengguna:
@@ -107,7 +109,7 @@ const personalizedDestinationFlow = ai.defineFlow(
             try {
                 const { media } = await ai.generate({
                     model: 'googleai/gemini-2.0-flash-preview-image-generation',
-                    prompt: `Sebuah foto yang indah, berkualitas tinggi, dan realistis dari destinasi wisata: ${destination.name}, Indonesia.`,
+                    prompt: `Sebuah foto yang indah, berkualitas tinggi, dan realistis dari destinasi wisata: ${destination.name}, Indonesia. Tipe: ${destination.destinationType}.`,
                     config: {
                         responseModalities: ['TEXT', 'IMAGE'],
                     }

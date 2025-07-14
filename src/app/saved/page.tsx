@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { DollarSign } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { DollarSign, Tag } from "lucide-react";
 
 export default function SavedDestinationsPage() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
@@ -63,6 +64,7 @@ export default function SavedDestinationsPage() {
             name: doc.data().name,
             description: doc.data().description,
             estimatedCost: doc.data().estimatedCost,
+            destinationType: doc.data().destinationType,
             // imageUrl is not saved, so we can leave it undefined.
           })) as Destination[];
           setDestinations(savedDests);
@@ -165,14 +167,19 @@ export default function SavedDestinationsPage() {
             </div>
             <DialogHeader className="p-6 pb-2">
               <DialogTitle className="text-3xl font-headline text-primary">{selectedDestination.name}</DialogTitle>
+               {selectedDestination.destinationType && (
+                <div className="flex items-center pt-2">
+                    <Badge variant="outline">{selectedDestination.destinationType}</Badge>
+                </div>
+              )}
             </DialogHeader>
             <div className="px-6 pb-4 max-h-[20vh] overflow-y-auto">
               <DialogDescription className="text-base text-foreground">
                 {selectedDestination.description}
               </DialogDescription>
             </div>
-            <div className="px-6 pb-6">
-              <div className="flex items-center mt-4 text-lg p-3 rounded-lg bg-secondary/50">
+            <div className="px-6 pb-6 space-y-3">
+              <div className="flex items-center text-lg p-3 rounded-lg bg-secondary/50">
                 <DollarSign className="w-5 h-5 mr-3 text-primary" />
                 <span className="font-semibold text-foreground">{selectedDestination.estimatedCost}</span>
               </div>
