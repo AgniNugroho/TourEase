@@ -38,7 +38,7 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
-  router = useRouter();
+  const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -256,4 +256,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
