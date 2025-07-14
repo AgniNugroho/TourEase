@@ -24,6 +24,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  allowedDevOrigins: [
+    '192.168.1.9'
+  ],
   // Server Actions are enabled by default in Next.js 14+
   // experimental: {
   //   serverActions: true, // or { bodySizeLimit: '2mb' } for example
