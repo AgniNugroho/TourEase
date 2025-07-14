@@ -46,7 +46,7 @@ export function DestinationCard({ destination, onViewDetails }: DestinationCardP
             aria-label={`Lihat lebih lanjut tentang ${destination.name}`}
           >
             <Eye className="w-4 h-4 mr-2" />
-            Lihat Lebih Lanjut
+            Lihat
         </Button>
       </CardFooter>
     </Card>
