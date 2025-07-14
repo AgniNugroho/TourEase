@@ -130,26 +130,26 @@ export default function AdminPage() {
 
   const memoizedPieChart = useMemo(() => (
     <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
+      <PieChart>
         <RechartsTooltip
-            cursor={false}
-            content={<ChartTooltipContent hideLabel />}
+          cursor={false}
+          content={<ChartTooltipContent hideLabel />}
         />
         <Pie
-            data={interestChartData}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            outerRadius={110}
-            fill="hsl(var(--primary))"
+          data={interestChartData}
+          dataKey="value"
+          nameKey="name"
+          cx="50%"
+          cy="50%"
+          outerRadius={110}
+          fill="hsl(var(--primary))"
         >
-            {interestChartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
+          {interestChartData.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          ))}
         </Pie>
         <Legend />
-        </PieChart>
+      </PieChart>
     </ResponsiveContainer>
   ), [interestChartData]);
 
@@ -240,7 +240,9 @@ export default function AdminPage() {
                     <CardContent>
                         {interestChartData.length > 0 ? (
                            <div className="h-[400px] w-full flex items-center justify-center">
-                            {memoizedPieChart}
+                            <ChartContainer config={{}} className="h-full w-full">
+                                {memoizedPieChart}
+                            </ChartContainer>
                            </div>
                         ) : (
                             <div className="flex items-center justify-center h-[400px]">
