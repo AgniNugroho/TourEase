@@ -89,3 +89,27 @@ export async function getSearchHistory(userId: string): Promise<SearchHistoryEnt
     throw new Error("Gagal mengambil riwayat pencarian dari basis data.");
   }
 }
+
+/**
+ * Fetches all search history entries from all users. For admin use only.
+ * @returns A promise that resolves to an array of all search history entries.
+ */
+export async function getAllSearchHistories(): Promise<SearchHistoryEntry[]> {
+  if (!db) {
+    throw new Error("Pengambilan data gagal: basis data tidak dikonfigurasi.");
+  }
+
+  const allHistories: SearchHistoryEntry[] = [];
+  const usersSnapshot = await getDocs(collection(db, "users"));
+
+  for (const userDoc of usersSnapshot.docs) {
+    const historyCollectionRef = collection(db, "users", userDoc.id, "searchHistory");
+    const historySnapshot = await getDocs(historyCollectionRef);
+    historySnapshot.forEach(doc => {
+      allHistories.push({ id: doc.id, ...doc.data() } as SearchHistoryEntry);
+    });
+  }
+  
+  return allHistories;
+}
+
