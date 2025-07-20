@@ -5,6 +5,12 @@ import { Toaster } from "@/components/ui/toaster";
 export const metadata: Metadata = {
   title: 'TourEase - Perencana Perjalanan AI Anda',
   description: 'Temukan destinasi wisata yang dipersonalisasi di Indonesia dengan TourEase.',
+  icons: {
+    icon: {
+      url: '/mountain-snow.svg',
+      type: 'image/svg+xml',
+    },
+  },
 };
 
 export default function RootLayout({
