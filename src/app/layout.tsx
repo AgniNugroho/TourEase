@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: 'Temukan destinasi wisata yang dipersonalisasi di Indonesia dengan TourEase.',
   icons: {
     icon: {
-      url: '/mountain-snow.svg',
+      url: '/icon.svg',
       type: 'image/svg+xml',
     },
   },
