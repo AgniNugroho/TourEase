@@ -234,8 +234,8 @@ export default function AdminPage() {
 
                 <Card className="lg:col-span-2">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><PieChartIcon /> Tren Tipe Destinasi</CardTitle>
-                        <CardDescription>Distribusi tipe destinasi yang direkomendasikan.</CardDescription>
+                        <CardTitle className="flex items-center gap-2"><PieChartIcon /> Tren Destinasi</CardTitle>
+                        <CardDescription>Distribusi tipe destinasi.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {destinationTypeChartData.length > 0 ? (
