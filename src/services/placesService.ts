@@ -4,7 +4,7 @@
 // IMPORTANT: This service is intended to be called from the server-side only (e.g., within a Genkit Flow).
 // It uses an API key that should not be exposed on the client.
 
-const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+const API_KEY = process.env.GEMINI_API_KEY; // Use a server-side environment variable
 const PLACES_API_BASE_URL = "https://maps.googleapis.com/maps/api/place";
 const PLACEHOLDER_IMAGE_URL = "https://placehold.co/600x400.png";
 
@@ -15,7 +15,7 @@ const PLACEHOLDER_IMAGE_URL = "https://placehold.co/600x400.png";
  */
 export async function getPlacePhotoUrl(query: string): Promise<string> {
   if (!API_KEY) {
-    console.warn("Google Maps API Key is not configured. Cannot fetch place photos. Returning placeholder.");
+    console.warn("Server-side Google Maps API Key (GEMINI_API_KEY) is not configured. Cannot fetch place photos. Returning placeholder.");
     return PLACEHOLDER_IMAGE_URL;
   }
 
@@ -29,20 +29,18 @@ export async function getPlacePhotoUrl(query: string): Promise<string> {
   try {
     const findPlaceResponse = await fetch(findPlaceUrl.toString());
 
-    // Check for non-OK responses (e.g., 4xx, 5xx errors)
     if (!findPlaceResponse.ok) {
-      const errorBody = await findPlaceResponse.json().catch(() => ({})); // Try to parse error, but don't fail if it's not JSON
+      const errorBody = await findPlaceResponse.json().catch(() => ({}));
       console.error(`Places API (findplace) HTTP error for query "${query}":`, {
         status: findPlaceResponse.status,
         statusText: findPlaceResponse.statusText,
         body: errorBody,
       });
-      return PLACEHOLDER_IMAGE_URL; // Return placeholder on HTTP error
+      return PLACEHOLDER_IMAGE_URL;
     }
 
     const findPlaceData = await findPlaceResponse.json();
 
-    // Check the status field within the JSON response
     if (findPlaceData.status !== "OK" || !findPlaceData.candidates || findPlaceData.candidates.length === 0) {
       console.log(`No valid candidates found for query: "${query}". Status: ${findPlaceData.status}`);
       return PLACEHOLDER_IMAGE_URL;
@@ -58,14 +56,14 @@ export async function getPlacePhotoUrl(query: string): Promise<string> {
     // 2. Construct the Photo URL using the photo_reference
     const photoReference = place.photos[0].photo_reference;
     const photoUrl = new URL(`${PLACES_API_BASE_URL}/photo`);
-    photoUrl.searchParams.append("maxwidth", "800"); // Request a reasonable size
+    photoUrl.searchParams.append("maxwidth", "800");
     photoUrl.searchParams.append("photoreference", photoReference);
-    photoUrl.searchParams.append("key", API_KEY);
+    photoUrl.searchParams.append("key", API_KEY); // The key is also required for the photo request
 
     return photoUrl.toString();
 
   } catch (error) {
     console.error(`Network or other critical error fetching from Google Places API for query "${query}":`, error);
-    return PLACEHOLDER_IMAGE_URL; // Return placeholder on any unexpected error
+    return PLACEHOLDER_IMAGE_URL;
   }
 }
