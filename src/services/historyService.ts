@@ -39,7 +39,7 @@ export async function saveSearchHistory(
   // Images will be generated on-demand if a user saves a destination from history.
   const destinationsToSave = destinations?.map(dest => ({
       ...dest,
-      imageUrl: dest.imageUrl || null, // ensure imageUrl field exists
+      imageUrl: dest.imageUrl || null, // ensure imageUrl field exists, even if null
   }));
 
   try {
@@ -98,20 +98,25 @@ export async function getAllSearchHistories(): Promise<SearchHistoryEntry[]> {
   }
 
   const allHistories: SearchHistoryEntry[] = [];
-  const usersSnapshot = await getDocs(collection(db, "users"));
+  try {
+    const usersSnapshot = await getDocs(collection(db, "users"));
 
-  for (const userDoc of usersSnapshot.docs) {
-    const historyCollectionRef = collection(db, "users", userDoc.id, "searchHistory");
-    const historySnapshot = await getDocs(historyCollectionRef);
-    historySnapshot.forEach(doc => {
-      const data = doc.data();
-      allHistories.push({ 
-        id: doc.id, 
-        input: data.input,
-        destinations: data.destinations || [],
-        searchedAt: data.searchedAt
-      } as SearchHistoryEntry);
-    });
+    for (const userDoc of usersSnapshot.docs) {
+      const historyCollectionRef = collection(db, "users", userDoc.id, "searchHistory");
+      const historySnapshot = await getDocs(historyCollectionRef);
+      historySnapshot.forEach(doc => {
+        const data = doc.data();
+        allHistories.push({ 
+          id: doc.id, 
+          input: data.input,
+          destinations: data.destinations || [],
+          searchedAt: data.searchedAt
+        } as SearchHistoryEntry);
+      });
+    }
+  } catch (error) {
+     console.error("Error fetching all search histories:", error);
+     throw new Error("Gagal mengambil semua riwayat pencarian dari basis data.");
   }
   
   return allHistories;

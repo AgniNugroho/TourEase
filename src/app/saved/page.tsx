@@ -60,12 +60,8 @@ export default function SavedDestinationsPage() {
           const q = query(destinationsRef, orderBy("savedAt", "desc"));
           const querySnapshot = await getDocs(q);
           const savedDests = querySnapshot.docs.map(doc => ({
+            id: doc.id,
             ...doc.data(),
-            name: doc.data().name,
-            description: doc.data().description,
-            estimatedCost: doc.data().estimatedCost,
-            destinationType: doc.data().destinationType,
-            imageUrl: doc.data().imageUrl, // Ensure imageUrl is read
           })) as Destination[];
           setDestinations(savedDests);
         } catch (err: any) {
@@ -142,7 +138,7 @@ export default function SavedDestinationsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {destinations.map((dest, index) => (
               <DestinationCard
-                key={index}
+                key={dest.name || index}
                 destination={dest}
                 onViewDetails={handleViewDetails}
               />
@@ -163,6 +159,7 @@ export default function SavedDestinationsPage() {
                     layout="fill"
                     objectFit="cover"
                     className="w-full h-full"
+                    unoptimized // if images are from data URI
                     data-ai-hint={selectedDestination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
                   />
               ) : (

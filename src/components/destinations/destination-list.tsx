@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import type { User } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebase";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { generateDestinationImage } from "@/ai/flows/destination-image-generation";
 
 interface DestinationListProps {
@@ -45,52 +45,50 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
     if (!user || !selectedDestination) return;
 
     setIsSaving(true);
+    const { name, destinationType } = selectedDestination;
+    const docId = name.replace(/\//g, '_');
+    const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
+    
     try {
         if (!db) {
             throw new Error("Penyimpanan gagal: basis data tidak dikonfigurasi.");
         }
         
-        const docId = selectedDestination.name.replace(/\//g, '_');
-        const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
-        
-        // Initially, save the destination with text data and a timestamp.
+        // Save text data first
         const destinationToSave = {
             ...selectedDestination,
             savedAt: serverTimestamp(),
-            imageUrl: selectedDestination.imageUrl || null, // save current image or null
+            imageUrl: selectedDestination.imageUrl || null,
         };
         await setDoc(destinationRef, destinationToSave, { merge: true });
 
         toast({
             title: "Destinasi Disimpan!",
-            description: `${selectedDestination.name} telah ditambahkan. Membuat gambar...`,
+            description: `${name} telah ditambahkan. Membuat gambar...`,
         });
         
         handleCloseDialog();
 
-        // Now, generate the image and update the document. This happens in the background.
+        // Then, generate image and update the doc
         try {
-            const imageResponse = await generateDestinationImage({
-                name: selectedDestination.name,
-                destinationType: selectedDestination.destinationType,
-            });
-
+            const imageResponse = await generateDestinationImage({ name, destinationType });
             if (imageResponse.imageUrl) {
-                 await setDoc(destinationRef, {
+                 await updateDoc(destinationRef, {
                     imageUrl: imageResponse.imageUrl,
-                }, { merge: true });
-
+                });
                  toast({
                     title: "Gambar Dibuat!",
-                    description: `Gambar untuk ${selectedDestination.name} berhasil dibuat dan disimpan.`,
+                    description: `Gambar untuk ${name} berhasil dibuat dan disimpan.`,
                 });
+            } else {
+                 throw new Error("AI did not return an image URL.");
             }
         } catch (imageError) {
              console.error("Error generating/updating image:", imageError);
              toast({
                 variant: "destructive",
                 title: "Gagal Membuat Gambar",
-                description: `Tidak dapat membuat gambar untuk ${selectedDestination.name}.`,
+                description: `Tidak dapat membuat gambar untuk ${name}.`,
             });
         }
     } catch (error: any) {
@@ -126,7 +124,7 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {destinations?.map((dest, index) => (
             <DestinationCard
-              key={index}
+              key={dest.name || index}
               destination={dest as Destination} // Cast as local Destination type
               onViewDetails={handleViewDetails}
             />
