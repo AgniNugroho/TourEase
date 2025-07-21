@@ -93,8 +93,10 @@ export async function getPlaceDetails(query: string): Promise<PlaceDetails> {
         photoUrl.searchParams.append("maxwidth", "800");
         photoUrl.searchParams.append("photoreference", photoReference);
         photoUrl.searchParams.append("key", API_KEY);
+        // DO NOT follow the redirect. Return the API URL directly.
+        // next/image will handle the request and receive the redirected image.
         finalImageUrl = photoUrl.toString();
-        console.log(`[PlacesService] Successfully generated photo URL for "${query}": ${finalImageUrl}`);
+        console.log(`[PlacesService] Successfully generated photo API URL for "${query}"`);
     } else {
         console.log(`[PlacesService] No photos found in details for place: "${query}" (Place ID: ${placeId}).`);
     }
