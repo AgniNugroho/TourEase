@@ -42,6 +42,7 @@ export default function HomePage() {
     }
   }, [isAuthLoading, user, router]);
 
+  {/*}
   useEffect(() => {
     const fetchTopDestinations = async () => {
       setIsMapDataLoading(true);
@@ -66,7 +67,7 @@ export default function HomePage() {
         fetchTopDestinations();
     }
   }, [toast, user]);
-
+  */}
 
   if (isAuthLoading || !user) {
     return (
@@ -99,11 +100,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Interactive Map Section */}
+        {/* Interactive Map Section
         <section className="container mx-auto px-4 py-12">
             <InteractiveMap locations={topDestinations} isLoading={isMapDataLoading} />
         </section>
-
+        */}
       </main>
       <AppFooter />
     </div>
