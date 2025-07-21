@@ -2,7 +2,7 @@
 "use client";
 
 import { db } from "@/lib/firebase";
-import { doc, setDoc, serverTimestamp, collection, getDocs, query, orderBy, Timestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, collection, getDocs, query, orderBy, Timestamp, updateDoc } from "firebase/firestore";
 import type { PersonalizedDestinationInput, PersonalizedDestinationOutput } from "@/ai/flows/personalized-destination-recommendation";
 import { Destination } from "@/components/destinations/destination-card";
 
@@ -36,7 +36,6 @@ export async function saveSearchHistory(
   const newHistoryRef = doc(historyCollectionRef);
 
   // We are not saving images to history to keep it lightweight.
-  // Images will be generated on-demand if a user saves a destination from history.
   const destinationsToSave = destinations?.map(dest => ({
       ...dest,
       imageUrl: null, // Always explicitly save imageUrl as null in history.
@@ -50,7 +49,7 @@ export async function saveSearchHistory(
     });
   } catch (error) {
     console.error("Error saving search history to Firestore:", error);
-    throw new Error("Gagal terhubung ke basis data untuk menyimpan riwayat.");
+    // Ignore history saving errors in production to not block user flow.
   }
 }
 
@@ -120,4 +119,31 @@ export async function getAllSearchHistories(): Promise<SearchHistoryEntry[]> {
   }
   
   return allHistories;
+}
+
+/**
+ * Updates a saved destination with a new image URL.
+ * @param userId The UID of the user.
+ * @param destinationName The name of the destination to update.
+ * @param imageUrl The new image URL.
+ */
+export async function updateSavedDestinationImage(userId: string, destinationName: string, imageUrl: string): Promise<void> {
+  if (!db) {
+    throw new Error("Pembaruan gagal: basis data tidak dikonfigurasi.");
+  }
+  if (!userId) {
+    throw new Error("Pengguna tidak terautentikasi.");
+  }
+
+  const docId = destinationName.replace(/\//g, '_');
+  const destinationRef = doc(db, "users", userId, "savedDestinations", docId);
+
+  try {
+    await updateDoc(destinationRef, {
+      imageUrl: imageUrl
+    });
+  } catch (error) {
+    console.error("Error updating destination image:", error);
+    // Non-critical error, so we don't throw, just log.
+  }
 }

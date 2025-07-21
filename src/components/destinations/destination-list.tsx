@@ -45,7 +45,7 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
 
     setIsSaving(true);
     const { name } = selectedDestination;
-    const docId = name.replace(/\//g, '_'); // Sanitize name for doc ID
+    const docId = name.replace(/\//g, '_'); 
     
     try {
         if (!db) {
@@ -58,6 +58,7 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
             ...selectedDestination,
             savedAt: serverTimestamp(),
         };
+        
         await setDoc(destinationRef, destinationToSave, { merge: true });
 
         toast({
@@ -69,7 +70,13 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
 
     } catch (error: any) {
         console.error("Error saving destination to Firestore:", error);
-        const description = error.message || "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.";
+        let description = "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.";
+        if (error.message.includes('permission-denied')) {
+          description = "Izin ditolak. Pastikan aturan keamanan Firestore Anda benar.";
+        } else if (error.message.includes('quota')) {
+          description = "Ukuran data terlalu besar untuk disimpan. Gambar mungkin terlalu besar.";
+        }
+        
         toast({
             variant: "destructive",
             title: "Gagal Menyimpan",
