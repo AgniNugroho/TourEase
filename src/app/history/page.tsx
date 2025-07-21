@@ -167,7 +167,7 @@ export default function HistoryPage() {
                 Hasil pencarian dari {selectedHistoryEntry.searchedAt ? new Date(selectedHistoryEntry.searchedAt.seconds * 1000).toLocaleString('id-ID') : 'N/A'}.
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-grow grid grid-cols-1 md:grid-cols-3 overflow-hidden">
+            <div className="flex-grow grid grid-cols-1 md:grid-cols-4 overflow-hidden">
                 <aside className="col-span-1 bg-muted/50 p-6 border-r flex flex-col">
                    <h3 className="text-xl font-headline mb-4">Preferensi Anda</h3>
                    <div className="space-y-3 text-sm">
@@ -184,7 +184,7 @@ export default function HistoryPage() {
                         </Button>
                    </div>
                 </aside>
-                <main className="col-span-2 overflow-y-auto">
+                <main className="md:col-span-3 overflow-y-auto">
                   <div className="p-6">
                     <DestinationList 
                         user={user} 

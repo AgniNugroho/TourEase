@@ -34,8 +34,8 @@ export async function saveSearchHistory(
   const historyCollectionRef = collection(db, "users", userId, "searchHistory");
   const newHistoryRef = doc(historyCollectionRef);
 
-  // We need to clean up the destinations to remove imageUrl before saving
-  const destinationsToSave = destinations.map(({ imageUrl, ...rest }) => rest);
+  // No need to remove imageUrl, we want to save it now.
+  const destinationsToSave = destinations;
 
   try {
     await setDoc(newHistoryRef, {
@@ -69,18 +69,16 @@ export async function getSearchHistory(userId: string): Promise<SearchHistoryEnt
     const querySnapshot = await getDocs(q);
     const historyEntries = querySnapshot.docs.map(doc => {
         const data = doc.data();
-        // Here we need to simulate the imageUrl for display purposes in history
-        const destinationsWithPlaceholderImages = data.destinations.map((dest: any) => ({
+        // Here we read the imageUrl from the saved data.
+        const destinationsWithImages = data.destinations.map((dest: any) => ({
             ...dest,
-            // Since imageUrl is not saved, we can provide a placeholder or leave it undefined.
-            // Let's leave it undefined so the DestinationCard can handle it.
-            imageUrl: undefined 
+            imageUrl: dest.imageUrl, // Ensure imageUrl is being passed
         }));
 
         return {
             id: doc.id,
             ...data,
-            destinations: destinationsWithPlaceholderImages,
+            destinations: destinationsWithImages,
         } as SearchHistoryEntry;
     });
     return historyEntries;
@@ -112,4 +110,3 @@ export async function getAllSearchHistories(): Promise<SearchHistoryEntry[]> {
   
   return allHistories;
 }
-

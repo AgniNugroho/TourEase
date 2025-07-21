@@ -52,11 +52,9 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         const docId = selectedDestination.name.replace(/\//g, '_');
         const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
 
-        // Explicitly exclude imageUrl from the object being saved
-        const { imageUrl, ...destinationToSave } = selectedDestination;
-
+        // Include the destination object, which now has imageUrl.
         await setDoc(destinationRef, {
-            ...destinationToSave,
+            ...selectedDestination,
             savedAt: serverTimestamp(),
         }, { merge: true });
 

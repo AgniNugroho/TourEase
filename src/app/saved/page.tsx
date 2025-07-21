@@ -65,7 +65,7 @@ export default function SavedDestinationsPage() {
             description: doc.data().description,
             estimatedCost: doc.data().estimatedCost,
             destinationType: doc.data().destinationType,
-            // imageUrl is not saved, so we can leave it undefined.
+            imageUrl: doc.data().imageUrl, // Ensure imageUrl is read
           })) as Destination[];
           setDestinations(savedDests);
         } catch (err: any) {
