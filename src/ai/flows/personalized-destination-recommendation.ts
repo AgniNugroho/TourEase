@@ -36,7 +36,7 @@ const DestinationSchema = z.object({
     .string()
     .describe('Perkiraan biaya perjalanan ke destinasi dari lokasi pengguna.'),
   destinationType: z.string().describe('Tipe destinasi (misalnya, Pantai, Gunung, Museum, Kuliner).'),
-  imageUrl: z.string().optional().describe('URL gambar yang akan ditampilkan. Gunakan tool getPlacePhoto untuk mendapatkan URL ini.'),
+  imageUrl: z.string().describe('URL gambar yang akan ditampilkan. Gunakan tool getPlacePhoto untuk mendapatkan URL ini.'),
 });
 
 
@@ -61,7 +61,7 @@ const getPlacePhoto = ai.defineTool(
         inputSchema: z.object({
             query: z.string().describe('Nama tempat atau destinasi yang akan dicari. Contoh: "Candi Borobudur" atau "Pantai Kuta Bali".'),
         }),
-        outputSchema: z.string().describe('URL publik dari foto tempat tersebut, atau string kosong jika tidak ditemukan.'),
+        outputSchema: z.string().describe('URL publik dari foto tempat tersebut, atau URL placeholder jika tidak ditemukan.'),
     },
     async (input) => {
         return getPlacePhotoUrl(input.query);
@@ -88,7 +88,7 @@ const textPrompt = ai.definePrompt({
   - Lokasi: {{{location}}}
 
   Harap berikan destinasi dalam format JSON yang diminta.
-  {{$instructions}}`,
+  `,
 });
 
 const personalizedDestinationFlow = ai.defineFlow(
@@ -99,15 +99,9 @@ const personalizedDestinationFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await textPrompt(input);
-    if (!output || !output.destinations) {
-        return { destinations: [] };
+    if (!output) {
+      return { destinations: [] };
     }
-    // Ganti URL placeholder jika ada yang kosong
-    const destinationsWithFallbackImages = output.destinations.map(dest => ({
-        ...dest,
-        imageUrl: dest.imageUrl || 'https://placehold.co/600x400.png'
-    }));
-
-    return { destinations: destinationsWithFallbackImages };
+    return output;
   }
 );
