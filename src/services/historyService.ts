@@ -2,7 +2,7 @@
 "use client";
 
 import { db } from "@/lib/firebase";
-import { doc, setDoc, serverTimestamp, collection, getDocs, query, orderBy, Timestamp, updateDoc } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, collection, getDocs, query, orderBy, Timestamp } from "firebase/firestore";
 import type { PersonalizedDestinationInput, PersonalizedDestinationOutput } from "@/ai/flows/personalized-destination-recommendation";
 import { Destination } from "@/components/destinations/destination-card";
 
@@ -36,10 +36,10 @@ export async function saveSearchHistory(
   const newHistoryRef = doc(historyCollectionRef);
 
   // We are not saving images to history to keep it lightweight.
-  const destinationsToSave = destinations?.map(dest => ({
-      ...dest,
-      imageUrl: null, // Always explicitly save imageUrl as null in history.
-  }));
+  const destinationsToSave = destinations?.map(dest => {
+      const { imageUrl, ...rest } = dest;
+      return { ...rest, imageUrl: null }; // Always explicitly save imageUrl as null in history.
+  });
 
   try {
     await setDoc(newHistoryRef, {

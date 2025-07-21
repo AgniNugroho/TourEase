@@ -28,9 +28,7 @@ export type PersonalizedDestinationInput = z.infer<
   typeof PersonalizedDestinationInputSchema
 >;
 
-const PersonalizedDestinationOutputSchema = z.object({
-  destinations: z.array(
-    z.object({
+const DestinationSchema = z.object({
       name: z.string().describe('Nama destinasi.'),
       description: z.string().describe('Deskripsi singkat tentang destinasi.'),
       estimatedCost: z
@@ -38,8 +36,11 @@ const PersonalizedDestinationOutputSchema = z.object({
         .describe('Perkiraan biaya perjalanan ke destinasi dari lokasi pengguna.'),
       destinationType: z.string().describe('Tipe destinasi (misalnya, Pantai, Gunung, Museum, Kuliner).'),
       imageUrl: z.string().optional().describe('URL gambar yang akan dibuat nanti.'),
-    })
-  ).describe('Daftar destinasi wisata yang direkomendasikan.'),
+    });
+
+
+const PersonalizedDestinationOutputSchema = z.object({
+  destinations: z.array(DestinationSchema).describe('Daftar destinasi wisata yang direkomendasikan.'),
 });
 
 export type PersonalizedDestinationOutput = z.infer<
@@ -72,6 +73,20 @@ const textPrompt = ai.definePrompt({
   {{$instructions}}`,
 });
 
+const generateImageForDestination = async (destination: z.infer<typeof DestinationSchema>) => {
+    try {
+        const { media } = await ai.generate({
+            model: 'googleai/gemini-2.0-flash-preview-image-generation',
+            prompt: `Sebuah foto indah dari destinasi wisata di Indonesia: ${destination.name}, ${destination.description}. Tipe: ${destination.destinationType}.`,
+            config: { responseModalities: ['IMAGE'] },
+        });
+        return media.url;
+    } catch (error) {
+        console.error(`Failed to generate image for ${destination.name}:`, error);
+        return 'https://placehold.co/600x400.png'; // Fallback placeholder
+    }
+};
+
 const personalizedDestinationFlow = ai.defineFlow(
   {
     name: 'personalizedDestinationFlow',
@@ -80,17 +95,19 @@ const personalizedDestinationFlow = ai.defineFlow(
   },
   async input => {
     // 1. Get text-only recommendations
-    const {output} = await textPrompt(input);
-    if (!output || !output.destinations) {
+    const {output: textOutput} = await textPrompt(input);
+    if (!textOutput || !textOutput.destinations) {
         return { destinations: [] };
     }
 
-    // 2. Return destinations without images. Images will be generated on-demand when saving.
-    const destinationsWithoutImages = output.destinations.map(dest => ({
-      ...dest,
-      imageUrl: undefined, // Explicitly set to undefined
-    }));
+    // 2. Generate images for each destination in parallel
+    const destinationsWithImages = await Promise.all(
+        textOutput.destinations.map(async (dest) => {
+            const imageUrl = await generateImageForDestination(dest);
+            return { ...dest, imageUrl };
+        })
+    );
     
-    return { destinations: destinationsWithoutImages };
+    return { destinations: destinationsWithImages };
   }
 );

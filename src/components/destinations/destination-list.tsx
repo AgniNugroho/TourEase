@@ -44,8 +44,8 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
     if (!user || !selectedDestination) return;
 
     setIsSaving(true);
-    const { name } = selectedDestination;
-    const docId = name.replace(/\//g, '_'); 
+    const { imageUrl, ...destinationToSave } = selectedDestination;
+    const docId = destinationToSave.name.replace(/\//g, '_'); 
     
     try {
         if (!db) {
@@ -53,15 +53,16 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         }
         
         const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
-        // Save the destination data with a timestamp, imageUrl will be what it is (likely undefined)
+        
         await setDoc(destinationRef, {
-            ...selectedDestination,
+            ...destinationToSave,
             savedAt: serverTimestamp(),
+            imageUrl: null // Explicitly do not save the image URL to avoid size issues
         }, { merge: true });
 
         toast({
             title: "Destinasi Disimpan!",
-            description: `${name} telah ditambahkan ke daftar tersimpan Anda.`,
+            description: `${destinationToSave.name} telah ditambahkan ke daftar tersimpan Anda.`,
         });
         
         handleCloseDialog();
@@ -97,7 +98,7 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         <Dialog open={!!selectedDestination} onOpenChange={(isOpen) => !isOpen && handleCloseDialog()}>
             <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-lg">
                 <div className="relative w-full h-56 md:h-64 bg-secondary flex items-center justify-center">
-                    {selectedDestination.imageUrl ? (
+                    {selectedDestination.imageUrl && !selectedDestination.imageUrl.includes('placehold.co') ? (
                         <Image
                             src={selectedDestination.imageUrl}
                             alt={`Gambar dari ${selectedDestination.name}`}
