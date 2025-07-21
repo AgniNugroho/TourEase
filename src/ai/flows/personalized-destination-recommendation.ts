@@ -10,7 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { getPlacePhotoUrl } from '@/services/placesService';
+import { getPlaceDetails, PlaceDetails } from '@/services/placesService';
 
 const PersonalizedDestinationInputSchema = z.object({
   budget: z
@@ -36,7 +36,9 @@ const DestinationSchema = z.object({
     .string()
     .describe('Perkiraan biaya perjalanan ke destinasi dari lokasi pengguna.'),
   destinationType: z.string().describe('Tipe destinasi (misalnya, Pantai, Gunung, Museum, Kuliner).'),
-  imageUrl: z.string().describe('URL gambar yang akan ditampilkan. HARUS diisi dengan memanggil tool getPlacePhoto.'),
+  imageUrl: z.string().describe('URL gambar yang akan ditampilkan. HARUS diisi dengan memanggil tool getPlaceInfo.'),
+  latitude: z.number().describe('Garis lintang destinasi. HARUS diisi dengan memanggil tool getPlaceInfo.'),
+  longitude: z.number().describe('Garis bujur destinasi. HARUS diisi dengan memanggil tool getPlaceInfo.'),
 });
 
 
@@ -54,17 +56,17 @@ export async function getPersonalizedDestinations(
   return personalizedDestinationFlow(input);
 }
 
-const getPlacePhoto = ai.defineTool(
+const getPlaceInfo = ai.defineTool(
     {
-        name: 'getPlacePhoto',
-        description: 'Dapatkan URL foto untuk sebuah tempat atau destinasi wisata. Gunakan ini untuk mengisi field imageUrl.',
+        name: 'getPlaceInfo',
+        description: 'Dapatkan detail untuk sebuah tempat, termasuk URL foto, latitude, dan longitude. Gunakan ini untuk mengisi field imageUrl, latitude, dan longitude.',
         inputSchema: z.object({
             query: z.string().describe('Nama tempat atau destinasi yang akan dicari. Jadikan se-spesifik mungkin, contoh: "Candi Borobudur Magelang" atau "Pantai Kuta Bali".'),
         }),
-        outputSchema: z.string().describe('URL publik dari foto tempat tersebut, atau URL placeholder jika tidak ditemukan.'),
+        outputSchema: z.custom<PlaceDetails>(),
     },
     async (input) => {
-        return getPlacePhotoUrl(input.query);
+        return getPlaceDetails(input.query);
     }
 );
 
@@ -72,14 +74,14 @@ const textPrompt = ai.definePrompt({
   name: 'personalizedDestinationTextPrompt',
   input: {schema: PersonalizedDestinationInputSchema},
   output: {schema: PersonalizedDestinationOutputSchema}, 
-  tools: [getPlacePhoto],
+  tools: [getPlaceInfo],
   prompt: `Anda adalah seorang ahli perjalanan yang berspesialisasi dalam pariwisata Indonesia.
 
   Berdasarkan preferensi pengguna, rekomendasikan beberapa destinasi wisata di Indonesia.
   Sertakan juga deskripsi singkat setiap destinasi, perkiraan biaya dari lokasi pengguna, dan tipe destinasi (contoh: Pantai, Gunung, Museum, Kuliner, Sejarah).
   Gunakan sumber daya blog perjalanan saat ini untuk menyusun rekomendasi Anda.
 
-  PENTING: Untuk setiap destinasi yang Anda rekomendasikan, Anda WAJIB memanggil tool 'getPlacePhoto' dengan nama destinasi sebagai query untuk mendapatkan URL gambar yang relevan dan mengisinya ke dalam field 'imageUrl'. Buat query untuk tool se-spesifik mungkin untuk hasil terbaik.
+  PENTING: Untuk setiap destinasi yang Anda rekomendasikan, Anda WAJIB memanggil tool 'getPlaceInfo' dengan nama destinasi sebagai query untuk mendapatkan URL gambar, latitude, dan longitude yang relevan dan mengisinya ke dalam field yang sesuai. Buat query untuk tool se-spesifik mungkin untuk hasil terbaik.
 
   Preferensi Pengguna:
   - Anggaran: {{{budget}}}

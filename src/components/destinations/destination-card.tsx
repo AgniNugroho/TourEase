@@ -13,6 +13,8 @@ export interface Destination {
   estimatedCost: string;
   destinationType: string;
   imageUrl?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface DestinationCardProps {
