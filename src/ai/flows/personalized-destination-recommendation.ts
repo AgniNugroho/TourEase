@@ -28,22 +28,6 @@ export type PersonalizedDestinationInput = z.infer<
   typeof PersonalizedDestinationInputSchema
 >;
 
-// Schema for the text-only part of the destination info
-const DestinationTextInfoSchema = z.object({
-  destinations: z.array(
-    z.object({
-      name: z.string().describe('Nama destinasi.'),
-      description: z.string().describe('Deskripsi singkat tentang destinasi.'),
-      estimatedCost: z
-        .string()
-        .describe('Perkiraan biaya perjalanan ke destinasi dari lokasi pengguna.'),
-      destinationType: z.string().describe('Tipe destinasi (misalnya, Pantai, Gunung, Museum, Kuliner).')
-    })
-  ).describe('Daftar destinasi wisata yang direkomendasikan.'),
-});
-
-
-// The final output schema including the image URL
 const PersonalizedDestinationOutputSchema = z.object({
   destinations: z.array(
     z.object({
@@ -55,8 +39,7 @@ const PersonalizedDestinationOutputSchema = z.object({
       destinationType: z.string().describe('Tipe destinasi (misalnya, Pantai, Gunung, Museum, Kuliner).'),
       imageUrl: z.string().url().optional().describe('Gambar opsional dari destinasi.'),
     })
-  ).
-  describe('Daftar destinasi wisata yang direkomendasikan, dengan gambar opsional.'),
+  ).describe('Daftar destinasi wisata yang direkomendasikan.'),
 });
 
 export type PersonalizedDestinationOutput = z.infer<
@@ -69,11 +52,10 @@ export async function getPersonalizedDestinations(
   return personalizedDestinationFlow(input);
 }
 
-// This prompt ONLY generates the text information
 const textPrompt = ai.definePrompt({
   name: 'personalizedDestinationTextPrompt',
   input: {schema: PersonalizedDestinationInputSchema},
-  output: {schema: DestinationTextInfoSchema}, // Use the text-only schema here
+  output: {schema: PersonalizedDestinationOutputSchema}, 
   prompt: `Anda adalah seorang ahli perjalanan yang berspesialisasi dalam pariwisata Indonesia.
 
   Berdasarkan preferensi pengguna, rekomendasikan beberapa destinasi wisata di Indonesia.
@@ -98,37 +80,18 @@ const personalizedDestinationFlow = ai.defineFlow(
   },
   async input => {
     // 1. Get text-based recommendations
-    const {output: textOutput} = await textPrompt(input);
-    if (!textOutput || !textOutput.destinations) {
+    const {output} = await textPrompt(input);
+    if (!output || !output.destinations) {
         return { destinations: [] };
     }
-
-    // 2. Generate an image for each destination in parallel
-    const destinationsWithImages = await Promise.all(
-        textOutput.destinations.map(async (destination) => {
-            try {
-                const { media } = await ai.generate({
-                    model: 'googleai/gemini-2.0-flash-preview-image-generation',
-                    prompt: `Sebuah foto yang indah, berkualitas tinggi, dan realistis dari destinasi wisata: ${destination.name}, Indonesia. Tipe: ${destination.destinationType}.`,
-                    config: {
-                        responseModalities: ['TEXT', 'IMAGE'],
-                    }
-                });
-                return {
-                    ...destination,
-                    imageUrl: media.url,
-                };
-            } catch (error) {
-                console.error(`Failed to generate image for ${destination.name}:`, error);
-                // Return the destination without an image URL if generation fails
-                return {
-                    ...destination,
-                    imageUrl: undefined,
-                };
-            }
-        })
-    );
-
-    return { destinations: destinationsWithImages };
+    
+    // The image will be generated on demand when the user saves a destination.
+    // For the initial list, we can leave imageUrl empty.
+    const destinationsWithoutImages = output.destinations.map(dest => ({
+        ...dest,
+        imageUrl: undefined,
+    }));
+    
+    return { destinations: destinationsWithoutImages };
   }
 );

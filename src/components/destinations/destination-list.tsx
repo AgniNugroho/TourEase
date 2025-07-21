@@ -5,7 +5,7 @@ import { useState } from "react";
 import Image from "next/image";
 import type { PersonalizedDestinationOutput } from "@/ai/flows/personalized-destination-recommendation";
 import { DestinationCard, type Destination } from "./destination-card";
-import { DollarSign, Info, Bookmark, Loader2, Tag } from "lucide-react";
+import { DollarSign, Info, Bookmark, Loader2, Tag, Image as ImageIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,7 @@ import type { User } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { generateDestinationImage } from "@/ai/flows/destination-image-generation";
 
 interface DestinationListProps {
   destinations?: PersonalizedDestinationOutput["destinations"];
@@ -51,18 +52,48 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         
         const docId = selectedDestination.name.replace(/\//g, '_');
         const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
-
-        // Include the destination object, which now has imageUrl.
+        
+        // First, save the destination with text data.
         await setDoc(destinationRef, {
             ...selectedDestination,
             savedAt: serverTimestamp(),
+            imageUrl: selectedDestination.imageUrl || null, // save current image or null
         }, { merge: true });
 
         toast({
             title: "Destinasi Disimpan!",
-            description: `${selectedDestination.name} telah ditambahkan ke daftar Anda.`,
+            description: `${selectedDestination.name} telah ditambahkan. Membuat gambar...`,
         });
+        
         handleCloseDialog();
+
+        // Now, generate the image and update the document. This happens in the background.
+        try {
+            const imageResponse = await generateDestinationImage({
+                name: selectedDestination.name,
+                destinationType: selectedDestination.destinationType,
+            });
+
+            if (imageResponse.imageUrl) {
+                 await setDoc(destinationRef, {
+                    imageUrl: imageResponse.imageUrl,
+                }, { merge: true });
+
+                 toast({
+                    title: "Gambar Dibuat!",
+                    description: `Gambar untuk ${selectedDestination.name} berhasil dibuat dan disimpan.`,
+                });
+            }
+        } catch (imageError) {
+             console.error("Error generating/updating image:", imageError);
+             toast({
+                variant: "destructive",
+                title: "Gagal Membuat Gambar",
+                description: `Tidak dapat membuat gambar untuk ${selectedDestination.name}.`,
+            });
+        }
+
+
     } catch (error: any) {
         console.error("Error saving destination to Firestore:", error);
         let description = "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.";
@@ -107,15 +138,22 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
       {selectedDestination && (
         <Dialog open={!!selectedDestination} onOpenChange={(isOpen) => !isOpen && handleCloseDialog()}>
             <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-lg">
-                <div className="relative w-full h-56 md:h-64">
-                    <Image
-                        src={selectedDestination.imageUrl || `https://placehold.co/600x400.png`}
-                        alt={`Gambar dari ${selectedDestination.name}`}
-                        layout="fill"
-                        objectFit="cover"
-                        className="w-full h-full"
-                        data-ai-hint={selectedDestination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
-                    />
+                <div className="relative w-full h-56 md:h-64 bg-secondary flex items-center justify-center">
+                    {selectedDestination.imageUrl ? (
+                        <Image
+                            src={selectedDestination.imageUrl}
+                            alt={`Gambar dari ${selectedDestination.name}`}
+                            layout="fill"
+                            objectFit="cover"
+                            className="w-full h-full"
+                            data-ai-hint={selectedDestination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
+                        />
+                    ) : (
+                       <div className="flex flex-col items-center justify-center text-muted-foreground">
+                            <ImageIcon className="h-16 w-16" />
+                            <p className="mt-2 text-sm font-medium">Gambar akan dibuat saat disimpan.</p>
+                        </div>
+                    )}
                 </div>
                 <DialogHeader className="p-6 pb-2">
                     <DialogTitle className="text-3xl font-headline text-primary">{selectedDestination.name}</DialogTitle>
