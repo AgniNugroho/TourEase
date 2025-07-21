@@ -40,9 +40,6 @@ export async function saveSearchHistory(
   const historyCollectionRef = collection(db, "users", userId, "searchHistory");
   const newHistoryRef = doc(historyCollectionRef);
 
-  // To keep history documents lighter, we can still choose to not save images,
-  // or save them as-is since they are now URLs, not large data URIs.
-  // Let's save them for a consistent experience.
   const destinationsToSave = destinations?.map(dest => ({
     ...dest,
     imageUrl: isValidImageUrl(dest.imageUrl) ? dest.imageUrl : null,
@@ -112,10 +109,17 @@ export async function getAllSearchHistories(): Promise<SearchHistoryEntry[]> {
       const historySnapshot = await getDocs(historyCollectionRef);
       historySnapshot.forEach(doc => {
         const data = doc.data();
+        // Pastikan destinasi memiliki latitude dan longitude
+        const destinations = (data.destinations || []).map((dest: any) => ({
+            ...dest,
+            latitude: dest.latitude,
+            longitude: dest.longitude
+        }));
+
         allHistories.push({ 
           id: doc.id, 
           input: data.input,
-          destinations: data.destinations || [],
+          destinations: destinations,
           searchedAt: data.searchedAt
         } as SearchHistoryEntry);
       });
