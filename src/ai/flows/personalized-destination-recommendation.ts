@@ -37,7 +37,7 @@ const PersonalizedDestinationOutputSchema = z.object({
         .string()
         .describe('Perkiraan biaya perjalanan ke destinasi dari lokasi pengguna.'),
       destinationType: z.string().describe('Tipe destinasi (misalnya, Pantai, Gunung, Museum, Kuliner).'),
-      imageUrl: z.string().url().optional().describe('Gambar opsional dari destinasi.'),
+      imageUrl: z.string().optional().describe('Gambar opsional dari destinasi.'),
     })
   ).describe('Daftar destinasi wisata yang direkomendasikan.'),
 });
