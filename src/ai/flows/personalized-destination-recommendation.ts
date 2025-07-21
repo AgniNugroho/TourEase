@@ -37,7 +37,7 @@ const PersonalizedDestinationOutputSchema = z.object({
         .string()
         .describe('Perkiraan biaya perjalanan ke destinasi dari lokasi pengguna.'),
       destinationType: z.string().describe('Tipe destinasi (misalnya, Pantai, Gunung, Museum, Kuliner).'),
-      imageUrl: z.string().optional().describe('Gambar opsional dari destinasi.'),
+      imageUrl: z.string().optional().describe('URL gambar yang akan dibuat nanti.'),
     })
   ).describe('Daftar destinasi wisata yang direkomendasikan.'),
 });
@@ -68,7 +68,7 @@ const textPrompt = ai.definePrompt({
   - Jumlah Orang: {{{numberOfPeople}}}
   - Lokasi: {{{location}}}
 
-  Harap berikan destinasi dalam format JSON berikut:
+  Harap berikan destinasi dalam format JSON berikut. Jangan membuat gambar, biarkan imageUrl kosong.
   {{$instructions}}`,
 });
 
