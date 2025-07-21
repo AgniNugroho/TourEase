@@ -5,6 +5,8 @@ import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from "@vis.gl/react
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, MapIcon } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle as AlertCardTitle } from "@/components/ui/alert";
+
 
 // Predefined popular locations in Indonesia with approximate coordinates
 const popularIndonesianLocations = [
@@ -39,17 +41,19 @@ export function InteractiveMap() {
   }, []);
   
   const ErrorDisplay = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <Card className="mt-8 shadow-lg">
+    <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="text-2xl font-headline text-center flex items-center justify-center gap-2">
           <MapIcon className="h-6 w-6 text-primary" />
           Peta Destinasi Interaktif
         </CardTitle>
       </CardHeader>
-      <CardContent className="text-center p-8">
-          <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
-          <p className="text-lg font-semibold text-destructive">{title}</p>
-          {children}
+      <CardContent>
+          <Alert variant="destructive" className="text-center">
+            <AlertTriangle className="h-5 w-5" />
+            <AlertCardTitle className="font-headline text-xl">{title}</AlertCardTitle>
+            <AlertDescription>{children}</AlertDescription>
+          </Alert>
       </CardContent>
     </Card>
   );
@@ -57,11 +61,11 @@ export function InteractiveMap() {
   if (authFailed) {
     return (
       <ErrorDisplay title="Gagal Memuat Peta">
-        <p className="text-muted-foreground">
-          Terjadi masalah dengan Kunci API Google Maps Anda. Ini sering kali disebabkan karena penagihan belum diaktifkan untuk proyek Anda.
+        <p className="mt-2 text-muted-foreground">
+          Terjadi masalah otentikasi dengan Kunci API Google Maps Anda. Ini sering kali disebabkan karena penagihan belum diaktifkan untuk proyek Anda atau kunci API tidak valid.
         </p>
         <p className="mt-4 text-sm">
-          Silakan periksa <a href="https://developers.google.com/maps/documentation/javascript/error-messages#billing-not-enabled-map-error" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">dokumentasi Google</a> dan pastikan penagihan telah diaktifkan di Google Cloud Console.
+          Silakan periksa <a href="https://developers.google.com/maps/documentation/javascript/error-messages#deverrorcodes" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">dokumentasi Google</a> dan pastikan penagihan telah diaktifkan di Google Cloud Console.
         </p>
       </ErrorDisplay>
     );
@@ -70,16 +74,9 @@ export function InteractiveMap() {
   if (!apiKey) {
     return (
       <ErrorDisplay title="Peta Tidak Tersedia">
-        <p className="text-muted-foreground">
+         <p className="mt-2 text-muted-foreground">
           Kunci API Google Maps tidak dikonfigurasi. Harap atur variabel lingkungan NEXT_PUBLIC_GOOGLE_MAPS_API_KEY.
         </p>
-        <p className="mt-4 text-sm">Menampilkan representasi statis Indonesia untuk saat ini:</p>
-        <img 
-          src="https://placehold.co/800x400.png?text=Peta+Placeholder+Indonesia" 
-          alt="Peta placeholder Indonesia" 
-          className="mt-4 rounded-md shadow-md mx-auto"
-          data-ai-hint="map Indonesia"
-        />
       </ErrorDisplay>
     );
   }
@@ -87,7 +84,7 @@ export function InteractiveMap() {
   const indonesiaCenter = { lat: -2.5489, lng: 118.0149 };
 
   return (
-    <Card className="mt-8 shadow-xl">
+    <Card className="shadow-xl">
       <CardHeader>
         <CardTitle className="text-3xl font-headline text-center text-primary flex items-center justify-center gap-2">
             <MapIcon className="h-7 w-7" />
@@ -140,4 +137,3 @@ export function InteractiveMap() {
     </Card>
   );
 }
-

@@ -109,14 +109,17 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
               name="interests"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">Deskripsi Lokasi</FormLabel>
+                  <FormLabel className="text-lg">Minat atau Aktivitas</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder=" "
+                      placeholder="Contoh: Mendaki gunung, menyelam, wisata kuliner, atau mengunjungi museum"
                       className="resize-none"
                       {...field}
                     />
                   </FormControl>
+                   <FormDescription>
+                    Jelaskan apa yang ingin Anda lakukan atau lihat selama perjalanan.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -154,7 +157,7 @@ export function PreferenceForm({ onSubmit, isLoading }: PreferenceFormProps) {
                 <FormItem>
                   <FormLabel className="text-lg">Lokasi Anda Saat Ini</FormLabel>
                   <FormControl>
-                    <Input placeholder=" " {...field} />
+                    <Input placeholder="Contoh: Jakarta, Indonesia" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

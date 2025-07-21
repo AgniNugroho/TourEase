@@ -59,7 +59,7 @@ const getPlacePhoto = ai.defineTool(
         name: 'getPlacePhoto',
         description: 'Dapatkan URL foto untuk sebuah tempat atau destinasi wisata. Gunakan ini untuk mengisi field imageUrl.',
         inputSchema: z.object({
-            query: z.string().describe('Nama tempat atau destinasi yang akan dicari. Contoh: "Candi Borobudur" atau "Pantai Kuta Bali".'),
+            query: z.string().describe('Nama tempat atau destinasi yang akan dicari. Jadikan se-spesifik mungkin, contoh: "Candi Borobudur Magelang" atau "Pantai Kuta Bali".'),
         }),
         outputSchema: z.string().describe('URL publik dari foto tempat tersebut, atau URL placeholder jika tidak ditemukan.'),
     },
@@ -79,7 +79,7 @@ const textPrompt = ai.definePrompt({
   Sertakan juga deskripsi singkat setiap destinasi, perkiraan biaya dari lokasi pengguna, dan tipe destinasi (contoh: Pantai, Gunung, Museum, Kuliner, Sejarah).
   Gunakan sumber daya blog perjalanan saat ini untuk menyusun rekomendasi Anda.
 
-  Untuk setiap destinasi yang Anda rekomendasikan, Anda HARUS memanggil tool 'getPlacePhoto' dengan nama destinasi sebagai query untuk mendapatkan URL gambar yang relevan dan mengisinya ke dalam field 'imageUrl'.
+  PENTING: Untuk setiap destinasi yang Anda rekomendasikan, Anda WAJIB memanggil tool 'getPlacePhoto' dengan nama destinasi sebagai query untuk mendapatkan URL gambar yang relevan dan mengisinya ke dalam field 'imageUrl'. Buat query untuk tool se-spesifik mungkin untuk hasil terbaik.
 
   Preferensi Pengguna:
   - Anggaran: {{{budget}}}

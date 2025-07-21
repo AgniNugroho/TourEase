@@ -27,11 +27,12 @@ export async function getPlacePhotoUrl(query: string): Promise<string> {
   findPlaceUrl.searchParams.append("key", API_KEY);
 
   try {
+    console.log(`[PlacesService] Finding place for query: "${query}"`);
     const findPlaceResponse = await fetch(findPlaceUrl.toString());
 
     if (!findPlaceResponse.ok) {
         const errorBody = await findPlaceResponse.json().catch(() => ({}));
-        console.error(`Places API (findplace) HTTP error for query "${query}":`, {
+        console.error(`[PlacesService] Find Place API error for query "${query}":`, {
             status: findPlaceResponse.status,
             statusText: findPlaceResponse.statusText,
             body: errorBody,
@@ -42,11 +43,13 @@ export async function getPlacePhotoUrl(query: string): Promise<string> {
     const findPlaceData = await findPlaceResponse.json();
 
     if (findPlaceData.status !== "OK" || !findPlaceData.candidates || findPlaceData.candidates.length === 0) {
-      console.log(`No valid candidates found for query: "${query}". Status: ${findPlaceData.status}`);
+      console.log(`[PlacesService] No valid candidates found for query: "${query}". Status: ${findPlaceData.status}`);
       return PLACEHOLDER_IMAGE_URL;
     }
     
     const placeId = findPlaceData.candidates[0].place_id;
+    console.log(`[PlacesService] Found Place ID: ${placeId} for query: "${query}"`);
+
 
     // 2. Use place_id to get Place Details, including photos
     const detailsUrl = new URL(`${PLACES_API_BASE_URL}/details/json`);
@@ -54,11 +57,12 @@ export async function getPlacePhotoUrl(query: string): Promise<string> {
     detailsUrl.searchParams.append("fields", "photos"); // Specifically request photos
     detailsUrl.searchParams.append("key", API_KEY);
 
+    console.log(`[PlacesService] Fetching details for Place ID: ${placeId}`);
     const detailsResponse = await fetch(detailsUrl.toString());
 
     if (!detailsResponse.ok) {
         const errorBody = await detailsResponse.json().catch(() => ({}));
-        console.error(`Places API (details) HTTP error for placeId "${placeId}":`, {
+        console.error(`[PlacesService] Place Details API error for placeId "${placeId}":`, {
             status: detailsResponse.status,
             statusText: detailsResponse.statusText,
             body: errorBody,
@@ -69,21 +73,23 @@ export async function getPlacePhotoUrl(query: string): Promise<string> {
     const detailsData = await detailsResponse.json();
 
     if (detailsData.status !== "OK" || !detailsData.result || !detailsData.result.photos || detailsData.result.photos.length === 0) {
-        console.log(`No photos found in details for place: "${query}" (Place ID: ${placeId})`);
+        console.log(`[PlacesService] No photos found in details for place: "${query}" (Place ID: ${placeId}). Status: ${detailsData.status}`);
         return PLACEHOLDER_IMAGE_URL;
     }
 
     // 3. Construct the Photo URL using the photo_reference
     const photoReference = detailsData.result.photos[0].photo_reference;
+    console.log(`[PlacesService] Found photo reference: ${photoReference}`);
     const photoUrl = new URL(`${PLACES_API_BASE_URL}/photo`);
     photoUrl.searchParams.append("maxwidth", "800");
     photoUrl.searchParams.append("photoreference", photoReference);
     photoUrl.searchParams.append("key", API_KEY);
 
+    console.log(`[PlacesService] Successfully generated photo URL for "${query}": ${photoUrl.toString()}`);
     return photoUrl.toString();
 
   } catch (error) {
-    console.error(`Network or other critical error fetching from Google Places API for query "${query}":`, error);
+    console.error(`[PlacesService] Network or other critical error fetching from Google Places API for query "${query}":`, error);
     return PLACEHOLDER_IMAGE_URL;
   }
 }
