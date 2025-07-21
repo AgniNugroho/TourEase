@@ -120,30 +120,3 @@ export async function getAllSearchHistories(): Promise<SearchHistoryEntry[]> {
   
   return allHistories;
 }
-
-/**
- * Updates a saved destination with a new image URL.
- * @param userId The UID of the user.
- * @param destinationName The name of the destination to update.
- * @param imageUrl The new image URL.
- */
-export async function updateSavedDestinationImage(userId: string, destinationName: string, imageUrl: string): Promise<void> {
-  if (!db) {
-    throw new Error("Pembaruan gagal: basis data tidak dikonfigurasi.");
-  }
-  if (!userId) {
-    throw new Error("Pengguna tidak terautentikasi.");
-  }
-
-  const docId = destinationName.replace(/\//g, '_');
-  const destinationRef = doc(db, "users", userId, "savedDestinations", docId);
-
-  try {
-    await updateDoc(destinationRef, {
-      imageUrl: imageUrl
-    });
-  } catch (error) {
-    console.error("Error updating destination image:", error);
-    // Non-critical error, so we don't throw, just log.
-  }
-}
