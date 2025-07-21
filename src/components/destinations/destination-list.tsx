@@ -57,7 +57,7 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         
         const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
         
-        // Simpan semua data termasuk imageUrl jika ada dan valid
+        // Save all data including imageUrl if it is a valid URL, otherwise save as null.
         const destinationToSave = {
             ...selectedDestination,
             imageUrl: isValidImageUrl(selectedDestination.imageUrl) ? selectedDestination.imageUrl : null,

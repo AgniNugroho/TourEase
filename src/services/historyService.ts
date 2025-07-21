@@ -13,6 +13,10 @@ export interface SearchHistoryEntry {
   searchedAt: Timestamp;
 }
 
+function isValidImageUrl(url?: string): boolean {
+  return !!(url && (url.startsWith('http://') || url.startsWith('https://')));
+}
+
 /**
  * Saves a search history entry to the user's 'searchHistory' subcollection in Firestore.
  * @param userId The UID of the user.
@@ -35,12 +39,13 @@ export async function saveSearchHistory(
   const historyCollectionRef = collection(db, "users", userId, "searchHistory");
   const newHistoryRef = doc(historyCollectionRef);
 
-  // We are not saving images to history to keep it lightweight.
-  const destinationsToSave = destinations?.map(dest => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { imageUrl, ...rest } = dest;
-      return { ...rest, imageUrl: null }; // Always explicitly save imageUrl as null in history.
-  });
+  // To keep history documents lighter, we can still choose to not save images,
+  // or save them as-is since they are now URLs, not large data URIs.
+  // Let's save them for a consistent experience.
+  const destinationsToSave = destinations?.map(dest => ({
+    ...dest,
+    imageUrl: isValidImageUrl(dest.imageUrl) ? dest.imageUrl : null,
+  }));
 
   try {
     await setDoc(newHistoryRef, {

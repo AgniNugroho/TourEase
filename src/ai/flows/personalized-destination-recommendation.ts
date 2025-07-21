@@ -101,7 +101,7 @@ const personalizedDestinationFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await textPrompt(input);
-    if (!output) {
+    if (!output || !output.destinations) {
       return { destinations: [] };
     }
     return output;
