@@ -10,12 +10,17 @@ import { useState, useEffect } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { InteractiveMap } from "@/components/map/interactive-map";
+import { InteractiveMap, type MapLocation } from "@/components/map/interactive-map";
+import { getTopRecommendedDestinations } from "@/services/historyService";
+import { useToast } from "@/hooks/use-toast";
 
 export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [topDestinations, setTopDestinations] = useState<MapLocation[]>([]);
+  const [isMapDataLoading, setIsMapDataLoading] = useState(true);
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!auth) {
@@ -36,6 +41,28 @@ export default function HomePage() {
       router.push('/login');
     }
   }, [isAuthLoading, user, router]);
+
+  useEffect(() => {
+    const fetchTopDestinations = async () => {
+      setIsMapDataLoading(true);
+      try {
+        const destinations = await getTopRecommendedDestinations();
+        setTopDestinations(destinations);
+      } catch (error) {
+        console.error("Failed to fetch top destinations:", error);
+        toast({
+          variant: "destructive",
+          title: "Gagal memuat destinasi populer",
+          description: "Tidak dapat mengambil data untuk peta interaktif."
+        });
+      } finally {
+        setIsMapDataLoading(false);
+      }
+    };
+
+    fetchTopDestinations();
+  }, [toast]);
+
 
   if (isAuthLoading || !user) {
     return (
@@ -70,7 +97,7 @@ export default function HomePage() {
 
         {/* Interactive Map Section */}
         <section className="container mx-auto px-4 py-12">
-            <InteractiveMap />
+            <InteractiveMap locations={topDestinations} isLoading={isMapDataLoading} />
         </section>
 
       </main>

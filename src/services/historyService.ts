@@ -5,6 +5,7 @@ import { db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp, collection, getDocs, query, orderBy, Timestamp } from "firebase/firestore";
 import type { PersonalizedDestinationInput, PersonalizedDestinationOutput } from "@/ai/flows/personalized-destination-recommendation";
 import { Destination } from "@/components/destinations/destination-card";
+import { MapLocation } from "@/components/map/interactive-map";
 
 export interface SearchHistoryEntry {
   id: string;
@@ -125,4 +126,44 @@ export async function getAllSearchHistories(): Promise<SearchHistoryEntry[]> {
   }
   
   return allHistories;
+}
+
+/**
+ * Aggregates all search histories to find the top 5 most recommended destinations.
+ * @returns A promise that resolves to an array of top 5 map locations.
+ */
+export async function getTopRecommendedDestinations(): Promise<MapLocation[]> {
+  const allHistories = await getAllSearchHistories();
+  
+  const destinationCounts: Record<string, { count: number; destination: Destination }> = {};
+
+  allHistories.forEach(history => {
+    history.destinations.forEach(dest => {
+      // Only consider destinations with valid coordinates for the map
+      if (dest.name && dest.latitude && dest.longitude) {
+        if (destinationCounts[dest.name]) {
+          destinationCounts[dest.name].count++;
+        } else {
+          destinationCounts[dest.name] = {
+            count: 1,
+            destination: dest,
+          };
+        }
+      }
+    });
+  });
+
+  const sortedDestinations = Object.values(destinationCounts)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  return sortedDestinations.map(item => ({
+    id: item.destination.name.replace(/\s+/g, '-').toLowerCase(),
+    name: item.destination.name,
+    position: {
+      lat: item.destination.latitude!,
+      lng: item.destination.longitude!,
+    },
+    description: item.destination.description,
+  }));
 }
