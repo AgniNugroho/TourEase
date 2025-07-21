@@ -25,6 +25,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, Tag, Image as ImageIcon } from "lucide-react";
 
+function isValidImageUrl(url?: string): boolean {
+  return !!(url && (url.startsWith('http://') || url.startsWith('https://')));
+}
+
 export default function SavedDestinationsPage() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +40,6 @@ export default function SavedDestinationsPage() {
 
   useEffect(() => {
     if (!auth) {
-      // If firebase is not configured, redirect to login as this page is protected.
       router.push('/login');
       return;
     }
@@ -82,8 +85,6 @@ export default function SavedDestinationsPage() {
       };
       fetchSavedDestinations();
     } else if (!user) {
-        // This case handles when the user logs out on this page.
-        // The auth state listener will redirect, but we also stop loading here.
         setIsLoading(false);
     }
   }, [user, toast]);
@@ -96,7 +97,6 @@ export default function SavedDestinationsPage() {
     setSelectedDestination(null);
   };
   
-  // Display a loading screen while auth is being checked or data is being fetched.
   if (isLoading || !user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background text-primary">
@@ -105,6 +105,8 @@ export default function SavedDestinationsPage() {
       </div>
     );
   }
+
+  const showImageInDialog = isValidImageUrl(selectedDestination?.imageUrl);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -152,14 +154,13 @@ export default function SavedDestinationsPage() {
         <Dialog open={!!selectedDestination} onOpenChange={(isOpen) => !isOpen && handleCloseDialog()}>
           <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-lg">
             <div className="relative w-full h-56 md:h-64 bg-secondary flex items-center justify-center">
-              {selectedDestination.imageUrl && !selectedDestination.imageUrl.includes('placehold.co') ? (
+              {showImageInDialog ? (
                   <Image
-                    src={selectedDestination.imageUrl}
+                    src={selectedDestination.imageUrl!}
                     alt={`Gambar dari ${selectedDestination.name}`}
                     layout="fill"
                     objectFit="cover"
                     className="w-full h-full"
-                    unoptimized={selectedDestination.imageUrl.startsWith('data:')}
                     data-ai-hint={selectedDestination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
                   />
               ) : (

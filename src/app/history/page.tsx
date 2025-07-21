@@ -27,6 +27,10 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Destination } from "@/components/destinations/destination-card";
 
+function isValidImageUrl(url?: string): boolean {
+    return !!(url && (url.startsWith('http://') || url.startsWith('https://')));
+}
+
 export default function HistoryPage() {
   const [history, setHistory] = useState<SearchHistoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,7 +62,14 @@ export default function HistoryPage() {
         setError(null);
         try {
           const searchHistory = await getSearchHistory(user.uid);
-          setHistory(searchHistory);
+           const historyWithValidImages = searchHistory.map(entry => ({
+            ...entry,
+            destinations: entry.destinations.map(dest => ({
+              ...dest,
+              imageUrl: isValidImageUrl(dest.imageUrl) ? dest.imageUrl : undefined
+            }))
+          }));
+          setHistory(historyWithValidImages);
         } catch (err: any) {
           console.error("Error fetching search history:", err);
           const errorMessage = err.message || "Terjadi kesalahan yang tidak diketahui saat mengambil data.";
@@ -85,7 +96,6 @@ export default function HistoryPage() {
   };
 
   const handleAskQuestion = (destinationName: string) => {
-    // This could be enhanced to open the chat widget, for now, we just toast
     toast({
       title: "Asisten AI",
       description: `Buka Asisten AI untuk bertanya tentang ${destinationName}`,

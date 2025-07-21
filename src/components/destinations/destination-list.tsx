@@ -27,6 +27,10 @@ interface DestinationListProps {
   user: User | null;
 }
 
+function isValidImageUrl(url?: string): boolean {
+  return !!(url && (url.startsWith('http://') || url.startsWith('https://')));
+}
+
 export function DestinationList({ destinations, onAskQuestion, user }: DestinationListProps) {
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -53,10 +57,10 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         
         const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
         
-        // Simpan semua data termasuk imageUrl jika ada
+        // Simpan semua data termasuk imageUrl jika ada dan valid
         const destinationToSave = {
             ...selectedDestination,
-            imageUrl: selectedDestination.imageUrl?.includes('placehold.co') ? null : selectedDestination.imageUrl,
+            imageUrl: isValidImageUrl(selectedDestination.imageUrl) ? selectedDestination.imageUrl : null,
             savedAt: serverTimestamp(),
         };
 
@@ -81,6 +85,8 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
     }
   };
 
+  const showImageInDialog = isValidImageUrl(selectedDestination?.imageUrl);
+
   return (
     <>
       <div className="mt-12">
@@ -100,14 +106,13 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         <Dialog open={!!selectedDestination} onOpenChange={(isOpen) => !isOpen && handleCloseDialog()}>
             <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-lg">
                 <div className="relative w-full h-56 md:h-64 bg-secondary flex items-center justify-center">
-                    {selectedDestination.imageUrl && !selectedDestination.imageUrl.includes('placehold.co') ? (
+                    {showImageInDialog ? (
                         <Image
-                            src={selectedDestination.imageUrl}
+                            src={selectedDestination.imageUrl!}
                             alt={`Gambar dari ${selectedDestination.name}`}
                             layout="fill"
                             objectFit="cover"
                             className="w-full h-full"
-                            unoptimized={selectedDestination.imageUrl.startsWith('data:')}
                             data-ai-hint={selectedDestination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
                         />
                     ) : (
