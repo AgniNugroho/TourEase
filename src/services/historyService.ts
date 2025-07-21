@@ -105,28 +105,33 @@ export async function getAllSearchHistories(): Promise<SearchHistoryEntry[]> {
     const usersSnapshot = await getDocs(collection(db, "users"));
 
     for (const userDoc of usersSnapshot.docs) {
-      const historyCollectionRef = collection(db, "users", userDoc.id, "searchHistory");
-      const historySnapshot = await getDocs(historyCollectionRef);
-      historySnapshot.forEach(doc => {
-        const data = doc.data();
-        // Pastikan destinasi memiliki latitude dan longitude
-        const destinations = (data.destinations || []).map((dest: any) => ({
-            ...dest,
-            latitude: dest.latitude,
-            longitude: dest.longitude
-        }));
+      try {
+        const historyCollectionRef = collection(db, "users", userDoc.id, "searchHistory");
+        const historySnapshot = await getDocs(historyCollectionRef);
+        historySnapshot.forEach(doc => {
+          const data = doc.data();
+          // Pastikan destinasi memiliki latitude dan longitude
+          const destinations = (data.destinations || []).map((dest: any) => ({
+              ...dest,
+              latitude: dest.latitude,
+              longitude: dest.longitude
+          }));
 
-        allHistories.push({ 
-          id: doc.id, 
-          input: data.input,
-          destinations: destinations,
-          searchedAt: data.searchedAt
-        } as SearchHistoryEntry);
-      });
+          allHistories.push({ 
+            id: doc.id, 
+            input: data.input,
+            destinations: destinations,
+            searchedAt: data.searchedAt
+          } as SearchHistoryEntry);
+        });
+      } catch (error) {
+        // Log the error for the specific user but continue the loop
+        console.warn(`Could not fetch search history for user ${userDoc.id}:`, error);
+      }
     }
   } catch (error) {
-     console.error("Error fetching all search histories:", error);
-     throw new Error("Gagal mengambil semua riwayat pencarian dari basis data.");
+     console.error("Error fetching all users:", error);
+     throw new Error("Gagal mengambil daftar pengguna dari basis data.");
   }
   
   return allHistories;
