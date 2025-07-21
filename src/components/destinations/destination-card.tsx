@@ -22,17 +22,18 @@ interface DestinationCardProps {
 
 export function DestinationCard({ destination, onViewDetails }: DestinationCardProps) {
   const imageAlt = `Gambar dari ${destination.name}`;
+  const isDataUri = destination.imageUrl?.startsWith('data:');
 
   return (
     <Card className="w-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col">
       <div className="relative w-full h-48 md:h-56 bg-muted/50 flex items-center justify-center">
-        {destination.imageUrl ? (
+        {destination.imageUrl && !destination.imageUrl.includes('placehold.co') ? (
             <Image
               src={destination.imageUrl}
               alt={imageAlt}
               layout="fill"
               objectFit="cover"
-              unoptimized
+              unoptimized={isDataUri}
               data-ai-hint={destination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
             />
         ) : (

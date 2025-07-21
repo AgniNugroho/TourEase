@@ -37,6 +37,7 @@ export async function saveSearchHistory(
 
   // We are not saving images to history to keep it lightweight.
   const destinationsToSave = destinations?.map(dest => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { imageUrl, ...rest } = dest;
       return { ...rest, imageUrl: null }; // Always explicitly save imageUrl as null in history.
   });

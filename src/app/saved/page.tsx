@@ -152,14 +152,14 @@ export default function SavedDestinationsPage() {
         <Dialog open={!!selectedDestination} onOpenChange={(isOpen) => !isOpen && handleCloseDialog()}>
           <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-lg">
             <div className="relative w-full h-56 md:h-64 bg-secondary flex items-center justify-center">
-              {selectedDestination.imageUrl ? (
+              {selectedDestination.imageUrl && !selectedDestination.imageUrl.includes('placehold.co') ? (
                   <Image
                     src={selectedDestination.imageUrl}
                     alt={`Gambar dari ${selectedDestination.name}`}
                     layout="fill"
                     objectFit="cover"
                     className="w-full h-full"
-                    unoptimized // Important for data URI images
+                    unoptimized={selectedDestination.imageUrl.startsWith('data:')}
                     data-ai-hint={selectedDestination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
                   />
               ) : (

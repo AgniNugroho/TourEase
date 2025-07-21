@@ -44,8 +44,7 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
     if (!user || !selectedDestination) return;
 
     setIsSaving(true);
-    const { imageUrl, ...destinationToSave } = selectedDestination;
-    const docId = destinationToSave.name.replace(/\//g, '_'); 
+    const docId = selectedDestination.name.replace(/\//g, '_'); 
     
     try {
         if (!db) {
@@ -54,15 +53,18 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         
         const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
         
-        await setDoc(destinationRef, {
-            ...destinationToSave,
+        // Simpan semua data termasuk imageUrl jika ada
+        const destinationToSave = {
+            ...selectedDestination,
+            imageUrl: selectedDestination.imageUrl?.includes('placehold.co') ? null : selectedDestination.imageUrl,
             savedAt: serverTimestamp(),
-            imageUrl: null // Explicitly do not save the image URL to avoid size issues
-        }, { merge: true });
+        };
+
+        await setDoc(destinationRef, destinationToSave, { merge: true });
 
         toast({
             title: "Destinasi Disimpan!",
-            description: `${destinationToSave.name} telah ditambahkan ke daftar tersimpan Anda.`,
+            description: `${selectedDestination.name} telah ditambahkan ke daftar tersimpan Anda.`,
         });
         
         handleCloseDialog();
@@ -105,7 +107,7 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
                             layout="fill"
                             objectFit="cover"
                             className="w-full h-full"
-                            unoptimized
+                            unoptimized={selectedDestination.imageUrl.startsWith('data:')}
                             data-ai-hint={selectedDestination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
                         />
                     ) : (
