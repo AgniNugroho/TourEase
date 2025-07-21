@@ -39,7 +39,7 @@ export async function saveSearchHistory(
   // Images will be generated on-demand if a user saves a destination from history.
   const destinationsToSave = destinations?.map(dest => ({
       ...dest,
-      imageUrl: dest.imageUrl || null, // ensure imageUrl field exists, even if null
+      imageUrl: null, // Always explicitly save imageUrl as null in history.
   }));
 
   try {

@@ -9,16 +9,14 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const GenerateDestinationImageInputSchema = z.object({
-  name: z.string().describe('Nama destinasi.'),
-  destinationType: z.string().describe('Tipe destinasi (misalnya, Pantai, Gunung, Museum, Kuliner).'),
-});
-type GenerateDestinationImageInput = z.infer<typeof GenerateDestinationImageInputSchema>;
+type GenerateDestinationImageInput = {
+  name: string;
+  destinationType: string;
+};
 
-const GenerateDestinationImageOutputSchema = z.object({
-  imageUrl: z.string().describe('URL gambar yang dihasilkan untuk destinasi.'),
-});
-type GenerateDestinationImageOutput = z.infer<typeof GenerateDestinationImageOutputSchema>;
+type GenerateDestinationImageOutput = {
+  imageUrl: string;
+};
 
 export async function generateDestinationImage(
   input: GenerateDestinationImageInput

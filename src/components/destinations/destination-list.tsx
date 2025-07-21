@@ -46,30 +46,31 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
 
     setIsSaving(true);
     const { name, destinationType } = selectedDestination;
-    const docId = name.replace(/\//g, '_');
-    const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
+    const docId = name.replace(/\//g, '_'); // Sanitize name for doc ID
     
     try {
         if (!db) {
             throw new Error("Penyimpanan gagal: basis data tidak dikonfigurasi.");
         }
         
-        // Save text data first
+        const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
+
+        // 1. Save text data first to give immediate feedback
         const destinationToSave = {
             ...selectedDestination,
             savedAt: serverTimestamp(),
-            imageUrl: selectedDestination.imageUrl || null,
+            imageUrl: selectedDestination.imageUrl || null, // Ensure field exists
         };
         await setDoc(destinationRef, destinationToSave, { merge: true });
 
         toast({
             title: "Destinasi Disimpan!",
-            description: `${name} telah ditambahkan. Membuat gambar...`,
+            description: `${name} telah ditambahkan. Sekarang, mari kita buat gambar yang indah...`,
         });
         
         handleCloseDialog();
 
-        // Then, generate image and update the doc
+        // 2. Generate image in the background and update the doc
         try {
             const imageResponse = await generateDestinationImage({ name, destinationType });
             if (imageResponse.imageUrl) {
@@ -78,7 +79,7 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
                 });
                  toast({
                     title: "Gambar Dibuat!",
-                    description: `Gambar untuk ${name} berhasil dibuat dan disimpan.`,
+                    description: `Gambar untuk ${name} berhasil dibuat dan disimpan. Anda dapat melihatnya di halaman 'Destinasi Tersimpan'.`,
                 });
             } else {
                  throw new Error("AI did not return an image URL.");
@@ -88,25 +89,12 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
              toast({
                 variant: "destructive",
                 title: "Gagal Membuat Gambar",
-                description: `Tidak dapat membuat gambar untuk ${name}.`,
+                description: `Tidak dapat membuat gambar untuk ${name}. Data teks tetap tersimpan.`,
             });
         }
     } catch (error: any) {
         console.error("Error saving destination to Firestore:", error);
-        let description = "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.";
-        
-        if (error.code) {
-            switch (error.code) {
-                case 'permission-denied':
-                    description = "Izin ditolak. Pastikan aturan keamanan Firestore Anda telah diterapkan dan mengizinkan penulisan.";
-                    break;
-                default:
-                    description = `Terjadi kesalahan Firebase: ${error.message} (kode: ${error.code})`;
-            }
-        } else if (error instanceof Error) {
-            description = error.message;
-        }
-
+        const description = error.message || "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.";
         toast({
             variant: "destructive",
             title: "Gagal Menyimpan",

@@ -159,7 +159,7 @@ export default function SavedDestinationsPage() {
                     layout="fill"
                     objectFit="cover"
                     className="w-full h-full"
-                    unoptimized // if images are from data URI
+                    unoptimized // Important for data URI images
                     data-ai-hint={selectedDestination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
                   />
               ) : (
