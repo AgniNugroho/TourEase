@@ -53,12 +53,13 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         const docId = selectedDestination.name.replace(/\//g, '_');
         const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
         
-        // First, save the destination with text data.
-        await setDoc(destinationRef, {
+        // Initially, save the destination with text data and a timestamp.
+        const destinationToSave = {
             ...selectedDestination,
             savedAt: serverTimestamp(),
             imageUrl: selectedDestination.imageUrl || null, // save current image or null
-        }, { merge: true });
+        };
+        await setDoc(destinationRef, destinationToSave, { merge: true });
 
         toast({
             title: "Destinasi Disimpan!",
@@ -92,8 +93,6 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
                 description: `Tidak dapat membuat gambar untuk ${selectedDestination.name}.`,
             });
         }
-
-
     } catch (error: any) {
         console.error("Error saving destination to Firestore:", error);
         let description = "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.";

@@ -23,7 +23,7 @@ import {
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Tag } from "lucide-react";
+import { DollarSign, Tag, Image as ImageIcon } from "lucide-react";
 
 export default function SavedDestinationsPage() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
@@ -155,15 +155,22 @@ export default function SavedDestinationsPage() {
       {selectedDestination && (
         <Dialog open={!!selectedDestination} onOpenChange={(isOpen) => !isOpen && handleCloseDialog()}>
           <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-lg">
-            <div className="relative w-full h-56 md:h-64">
-              <Image
-                src={selectedDestination.imageUrl || `https://placehold.co/600x400.png`}
-                alt={`Gambar dari ${selectedDestination.name}`}
-                layout="fill"
-                objectFit="cover"
-                className="w-full h-full"
-                data-ai-hint={selectedDestination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
-              />
+            <div className="relative w-full h-56 md:h-64 bg-secondary flex items-center justify-center">
+              {selectedDestination.imageUrl ? (
+                  <Image
+                    src={selectedDestination.imageUrl}
+                    alt={`Gambar dari ${selectedDestination.name}`}
+                    layout="fill"
+                    objectFit="cover"
+                    className="w-full h-full"
+                    data-ai-hint={selectedDestination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
+                  />
+              ) : (
+                  <div className="flex flex-col items-center justify-center text-muted-foreground">
+                      <ImageIcon className="h-16 w-16" />
+                      <p className="mt-2 text-sm font-medium">Gambar tidak tersedia.</p>
+                  </div>
+              )}
             </div>
             <DialogHeader className="p-6 pb-2">
               <DialogTitle className="text-3xl font-headline text-primary">{selectedDestination.name}</DialogTitle>

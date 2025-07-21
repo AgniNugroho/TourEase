@@ -4,11 +4,12 @@
 import { db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp, collection, getDocs, query, orderBy, Timestamp } from "firebase/firestore";
 import type { PersonalizedDestinationInput, PersonalizedDestinationOutput } from "@/ai/flows/personalized-destination-recommendation";
+import { Destination } from "@/components/destinations/destination-card";
 
 export interface SearchHistoryEntry {
   id: string;
   input: PersonalizedDestinationInput;
-  destinations: PersonalizedDestinationOutput["destinations"];
+  destinations: Destination[];
   searchedAt: Timestamp;
 }
 
@@ -36,10 +37,10 @@ export async function saveSearchHistory(
 
   // We are not saving images to history to keep it lightweight.
   // Images will be generated on-demand if a user saves a destination from history.
-  const destinationsToSave = destinations?.map(dest => {
-      const { imageUrl, ...rest } = dest;
-      return rest;
-  });
+  const destinationsToSave = destinations?.map(dest => ({
+      ...dest,
+      imageUrl: dest.imageUrl || null, // ensure imageUrl field exists
+  }));
 
   try {
     await setDoc(newHistoryRef, {
@@ -75,7 +76,9 @@ export async function getSearchHistory(userId: string): Promise<SearchHistoryEnt
         const data = doc.data();
         return {
             id: doc.id,
-            ...data,
+            input: data.input,
+            destinations: data.destinations || [],
+            searchedAt: data.searchedAt,
         } as SearchHistoryEntry;
     });
     return historyEntries;
@@ -101,7 +104,13 @@ export async function getAllSearchHistories(): Promise<SearchHistoryEntry[]> {
     const historyCollectionRef = collection(db, "users", userDoc.id, "searchHistory");
     const historySnapshot = await getDocs(historyCollectionRef);
     historySnapshot.forEach(doc => {
-      allHistories.push({ id: doc.id, ...doc.data() } as SearchHistoryEntry);
+      const data = doc.data();
+      allHistories.push({ 
+        id: doc.id, 
+        input: data.input,
+        destinations: data.destinations || [],
+        searchedAt: data.searchedAt
+      } as SearchHistoryEntry);
     });
   }
   

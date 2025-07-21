@@ -25,6 +25,7 @@ import {
 import { DestinationList } from "@/components/destinations/destination-list";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { Destination } from "@/components/destinations/destination-card";
 
 export default function HistoryPage() {
   const [history, setHistory] = useState<SearchHistoryEntry[]>([]);
@@ -188,7 +189,7 @@ export default function HistoryPage() {
                   <div className="p-6">
                     <DestinationList 
                         user={user} 
-                        destinations={selectedHistoryEntry.destinations} 
+                        destinations={selectedHistoryEntry.destinations as Destination[]} 
                         onAskQuestion={handleAskQuestion} 
                     />
                   </div>
