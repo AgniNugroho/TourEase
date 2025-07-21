@@ -53,15 +53,19 @@ export default function HomePage() {
         toast({
           variant: "destructive",
           title: "Gagal memuat destinasi populer",
-          description: "Tidak dapat mengambil data untuk peta interaktif."
+          description: "Tidak dapat mengambil data untuk peta interaktif karena masalah izin atau koneksi."
         });
+        // Set to empty array on error to prevent broken map state
+        setTopDestinations([]);
       } finally {
         setIsMapDataLoading(false);
       }
     };
 
-    fetchTopDestinations();
-  }, [toast]);
+    if (user) {
+        fetchTopDestinations();
+    }
+  }, [toast, user]);
 
 
   if (isAuthLoading || !user) {
