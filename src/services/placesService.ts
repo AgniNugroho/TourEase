@@ -11,11 +11,11 @@ const PLACEHOLDER_IMAGE_URL = "https://placehold.co/600x400.png";
 /**
  * Finds a place using the Google Places "Find Place from Text" API and returns a photo URL.
  * @param query The search query (e.g., "Candi Borobudur").
- * @returns The URL of the first photo found, or a placeholder URL if no photo is available.
+ * @returns The URL of the first photo found, or a placeholder URL if no photo is available or an error occurs.
  */
 export async function getPlacePhotoUrl(query: string): Promise<string> {
   if (!API_KEY) {
-    console.warn("Google Maps API Key is not configured. Cannot fetch place photos.");
+    console.warn("Google Maps API Key is not configured. Cannot fetch place photos. Returning placeholder.");
     return PLACEHOLDER_IMAGE_URL;
   }
 
@@ -28,15 +28,23 @@ export async function getPlacePhotoUrl(query: string): Promise<string> {
 
   try {
     const findPlaceResponse = await fetch(findPlaceUrl.toString());
+
+    // Check for non-OK responses (e.g., 4xx, 5xx errors)
     if (!findPlaceResponse.ok) {
-      const errorBody = await findPlaceResponse.json();
-      console.error(`Places API (findplace) error for query "${query}":`, errorBody);
-      return PLACEHOLDER_IMAGE_URL;
+      const errorBody = await findPlaceResponse.json().catch(() => ({})); // Try to parse error, but don't fail if it's not JSON
+      console.error(`Places API (findplace) HTTP error for query "${query}":`, {
+        status: findPlaceResponse.status,
+        statusText: findPlaceResponse.statusText,
+        body: errorBody,
+      });
+      return PLACEHOLDER_IMAGE_URL; // Return placeholder on HTTP error
     }
+
     const findPlaceData = await findPlaceResponse.json();
 
+    // Check the status field within the JSON response
     if (findPlaceData.status !== "OK" || !findPlaceData.candidates || findPlaceData.candidates.length === 0) {
-      console.log(`No candidates found for query: "${query}"`);
+      console.log(`No valid candidates found for query: "${query}". Status: ${findPlaceData.status}`);
       return PLACEHOLDER_IMAGE_URL;
     }
 
@@ -57,7 +65,7 @@ export async function getPlacePhotoUrl(query: string): Promise<string> {
     return photoUrl.toString();
 
   } catch (error) {
-    console.error("Error fetching from Google Places API:", error);
-    return PLACEHOLDER_IMAGE_URL;
+    console.error(`Network or other critical error fetching from Google Places API for query "${query}":`, error);
+    return PLACEHOLDER_IMAGE_URL; // Return placeholder on any unexpected error
   }
 }

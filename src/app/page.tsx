@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { InteractiveMap } from "@/components/map/interactive-map";
 
 export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -65,6 +66,11 @@ export default function HomePage() {
               </Link>
             </Button>
           </div>
+        </section>
+
+        {/* Interactive Map Section */}
+        <section className="container mx-auto px-4 py-12">
+            <InteractiveMap />
         </section>
 
       </main>
