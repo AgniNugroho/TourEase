@@ -181,7 +181,7 @@ export default function HistoryPage() {
                    <div className="mt-auto">
                         <Button variant="outline" className="w-full" onClick={() => router.push('/search')}>
                            <History className="mr-2 h-4 w-4" />
-                           Lakukan Pencarian Baru
+                           Buat Pencarian Baru
                         </Button>
                    </div>
                 </aside>

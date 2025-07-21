@@ -19,7 +19,10 @@ import { Badge } from "@/components/ui/badge";
 import type { User } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebase";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { generateDestinationImage } from "@/ai/flows/destination-image-generation";
+import { updateSavedDestinationImage } from "@/services/historyService";
+
 
 interface DestinationListProps {
   destinations?: PersonalizedDestinationOutput["destinations"];
@@ -44,7 +47,7 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
     if (!user || !selectedDestination) return;
 
     setIsSaving(true);
-    const { name } = selectedDestination;
+    const { name, destinationType } = selectedDestination;
     const docId = name.replace(/\//g, '_'); 
     
     try {
@@ -52,35 +55,46 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
             throw new Error("Penyimpanan gagal: basis data tidak dikonfigurasi.");
         }
         
+        // 1. Save text data first to Firestore with a null imageUrl
         const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
-
         const destinationToSave = {
             ...selectedDestination,
+            imageUrl: null, // Start with no image
             savedAt: serverTimestamp(),
         };
-        
         await setDoc(destinationRef, destinationToSave, { merge: true });
 
         toast({
             title: "Destinasi Disimpan!",
-            description: `${name} telah ditambahkan ke daftar tersimpan Anda.`,
+            description: `${name} telah ditambahkan. Membuat gambar...`,
         });
         
         handleCloseDialog();
+        
+        // 2. Asynchronously generate the image
+        const imageResult = await generateDestinationImage({ name, destinationType });
+
+        // 3. If image generation is successful, update the document
+        if (imageResult.imageUrl) {
+            await updateSavedDestinationImage(user.uid, name, imageResult.imageUrl);
+             toast({
+                title: "Gambar Dibuat!",
+                description: `Gambar untuk ${name} berhasil dibuat dan disimpan.`,
+            });
+        } else {
+             toast({
+                variant: "destructive",
+                title: "Gagal Membuat Gambar",
+                description: `Tidak dapat membuat gambar untuk ${name}.`,
+            });
+        }
 
     } catch (error: any) {
         console.error("Error saving destination to Firestore:", error);
-        let description = "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.";
-        if (error.message.includes('permission-denied')) {
-          description = "Izin ditolak. Pastikan aturan keamanan Firestore Anda benar.";
-        } else if (error.message.includes('quota')) {
-          description = "Ukuran data terlalu besar untuk disimpan. Gambar mungkin terlalu besar.";
-        }
-        
         toast({
             variant: "destructive",
             title: "Gagal Menyimpan",
-            description: description,
+            description: "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.",
         });
     } finally {
         setIsSaving(false);
