@@ -19,8 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import type { User } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebase";
-import { doc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
-import { generateDestinationImage } from "@/ai/flows/destination-image-generation";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 interface DestinationListProps {
   destinations?: PersonalizedDestinationOutput["destinations"];
@@ -45,7 +44,7 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
     if (!user || !selectedDestination) return;
 
     setIsSaving(true);
-    const { name, destinationType } = selectedDestination;
+    const { name } = selectedDestination;
     const docId = name.replace(/\//g, '_'); // Sanitize name for doc ID
     
     try {
@@ -55,43 +54,19 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
         
         const destinationRef = doc(db, "users", user.uid, "savedDestinations", docId);
 
-        // 1. Save text data first to give immediate feedback
         const destinationToSave = {
             ...selectedDestination,
             savedAt: serverTimestamp(),
-            imageUrl: selectedDestination.imageUrl || null, // Ensure field exists
         };
         await setDoc(destinationRef, destinationToSave, { merge: true });
 
         toast({
             title: "Destinasi Disimpan!",
-            description: `${name} telah ditambahkan. Sekarang, mari kita buat gambar yang indah...`,
+            description: `${name} telah ditambahkan ke daftar tersimpan Anda.`,
         });
         
         handleCloseDialog();
 
-        // 2. Generate image in the background and update the doc
-        try {
-            const imageResponse = await generateDestinationImage({ name, destinationType });
-            if (imageResponse.imageUrl) {
-                 await updateDoc(destinationRef, {
-                    imageUrl: imageResponse.imageUrl,
-                });
-                 toast({
-                    title: "Gambar Dibuat!",
-                    description: `Gambar untuk ${name} berhasil dibuat dan disimpan. Anda dapat melihatnya di halaman 'Destinasi Tersimpan'.`,
-                });
-            } else {
-                 throw new Error("AI did not return an image URL.");
-            }
-        } catch (imageError) {
-             console.error("Error generating/updating image:", imageError);
-             toast({
-                variant: "destructive",
-                title: "Gagal Membuat Gambar",
-                description: `Tidak dapat membuat gambar untuk ${name}. Data teks tetap tersimpan.`,
-            });
-        }
     } catch (error: any) {
         console.error("Error saving destination to Firestore:", error);
         const description = error.message || "Terjadi kesalahan saat menyimpan destinasi. Silakan coba lagi.";
@@ -131,12 +106,13 @@ export function DestinationList({ destinations, onAskQuestion, user }: Destinati
                             layout="fill"
                             objectFit="cover"
                             className="w-full h-full"
+                            unoptimized
                             data-ai-hint={selectedDestination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
                         />
                     ) : (
                        <div className="flex flex-col items-center justify-center text-muted-foreground">
                             <ImageIcon className="h-16 w-16" />
-                            <p className="mt-2 text-sm font-medium">Gambar akan dibuat saat disimpan.</p>
+                            <p className="mt-2 text-sm font-medium">Gambar tidak tersedia.</p>
                         </div>
                     )}
                 </div>

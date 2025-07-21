@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Tag } from "lucide-react";
+import { Eye, ImageIcon } from "lucide-react";
 
 export interface Destination {
   name: string;
@@ -21,19 +21,26 @@ interface DestinationCardProps {
 }
 
 export function DestinationCard({ destination, onViewDetails }: DestinationCardProps) {
-  const placeholderImage = `https://placehold.co/600x400.png`;
   const imageAlt = `Gambar dari ${destination.name}`;
 
   return (
     <Card className="w-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col">
-      <div className="relative w-full h-48 md:h-56">
-        <Image
-          src={destination.imageUrl || placeholderImage}
-          alt={imageAlt}
-          layout="fill"
-          objectFit="cover"
-          data-ai-hint={destination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
-        />
+      <div className="relative w-full h-48 md:h-56 bg-muted/50 flex items-center justify-center">
+        {destination.imageUrl ? (
+            <Image
+              src={destination.imageUrl}
+              alt={imageAlt}
+              layout="fill"
+              objectFit="cover"
+              unoptimized
+              data-ai-hint={destination.name.toLowerCase().split(" ").slice(0,2).join(" ")}
+            />
+        ) : (
+            <div className="flex flex-col items-center text-muted-foreground">
+                <ImageIcon className="h-12 w-12" />
+                <p className="mt-2 text-sm">Gambar tidak tersedia</p>
+            </div>
+        )}
          {destination.destinationType && (
             <Badge variant="secondary" className="absolute top-2 right-2 shadow-md">
                 {destination.destinationType}

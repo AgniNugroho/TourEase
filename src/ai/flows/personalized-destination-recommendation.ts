@@ -46,6 +46,24 @@ export type PersonalizedDestinationOutput = z.infer<
   typeof PersonalizedDestinationOutputSchema
 >;
 
+// Fungsi pembantu untuk membuat gambar
+async function generateImageForDestination(name: string, destinationType: string): Promise<string | undefined> {
+    try {
+        const { media } = await ai.generate({
+            model: 'googleai/gemini-2.0-flash-preview-image-generation',
+            prompt: `Sebuah foto yang indah, berkualitas tinggi, dan realistis dari destinasi wisata: ${name}, Indonesia. Tipe: ${destinationType}.`,
+            config: {
+                responseModalities: ['TEXT', 'IMAGE'],
+            }
+        });
+        return media.url;
+    } catch (error) {
+        console.error(`Gagal membuat gambar untuk ${name}:`, error);
+        return undefined; // Kembalikan undefined jika gagal, agar tidak memblokir rekomendasi lainnya
+    }
+}
+
+
 export async function getPersonalizedDestinations(
   input: PersonalizedDestinationInput
 ): Promise<PersonalizedDestinationOutput> {
@@ -79,19 +97,23 @@ const personalizedDestinationFlow = ai.defineFlow(
     outputSchema: PersonalizedDestinationOutputSchema,
   },
   async input => {
-    // 1. Get text-based recommendations
+    // 1. Dapatkan rekomendasi teks terlebih dahulu
     const {output} = await textPrompt(input);
     if (!output || !output.destinations) {
         return { destinations: [] };
     }
     
-    // The image will be generated on demand when the user saves a destination.
-    // For the initial list, we can leave imageUrl empty.
-    const destinationsWithoutImages = output.destinations.map(dest => ({
-        ...dest,
-        imageUrl: undefined,
-    }));
+    // 2. Buat gambar untuk setiap destinasi secara paralel
+    const destinationsWithImages = await Promise.all(
+        output.destinations.map(async (dest) => {
+            const imageUrl = await generateImageForDestination(dest.name, dest.destinationType);
+            return {
+                ...dest,
+                imageUrl, // Akan menjadi undefined jika pembuatan gambar gagal
+            };
+        })
+    );
     
-    return { destinations: destinationsWithoutImages };
+    return { destinations: destinationsWithImages };
   }
 );
