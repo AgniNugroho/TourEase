@@ -36,7 +36,7 @@ const DestinationSchema = z.object({
     .string()
     .describe('Perkiraan biaya perjalanan ke destinasi dari lokasi pengguna.'),
   destinationType: z.string().describe('Tipe destinasi (misalnya, Pantai, Gunung, Museum, Kuliner).'),
-  imageUrl: z.string().describe('URL gambar yang akan ditampilkan. Gunakan tool getPlacePhoto untuk mendapatkan URL ini.'),
+  imageUrl: z.string().describe('URL gambar yang akan ditampilkan. HARUS diisi dengan memanggil tool getPlacePhoto.'),
 });
 
 
@@ -79,7 +79,7 @@ const textPrompt = ai.definePrompt({
   Sertakan juga deskripsi singkat setiap destinasi, perkiraan biaya dari lokasi pengguna, dan tipe destinasi (contoh: Pantai, Gunung, Museum, Kuliner, Sejarah).
   Gunakan sumber daya blog perjalanan saat ini untuk menyusun rekomendasi Anda.
 
-  Untuk setiap destinasi, Anda HARUS memanggil tool 'getPlacePhoto' untuk mendapatkan URL gambar yang relevan dan mengisinya ke dalam field 'imageUrl'.
+  Untuk setiap destinasi yang Anda rekomendasikan, Anda HARUS memanggil tool 'getPlacePhoto' dengan nama destinasi sebagai query untuk mendapatkan URL gambar yang relevan dan mengisinya ke dalam field 'imageUrl'.
 
   Preferensi Pengguna:
   - Anggaran: {{{budget}}}
@@ -87,7 +87,7 @@ const textPrompt = ai.definePrompt({
   - Jumlah Orang: {{{numberOfPeople}}}
   - Lokasi: {{{location}}}
 
-  Harap berikan destinasi dalam format JSON yang diminta.
+  Harap berikan daftar destinasi dalam format JSON yang diminta.
   `,
 });
 
