@@ -50,7 +50,7 @@ export async function getPlaceDetails(query: string): Promise<PlaceDetails> {
 
       const findPlaceResponse = await fetch(findPlaceUrl.toString());
       if (!findPlaceResponse.ok) {
-        console.error(`[PlacesService] Find Place API error for query "${currentQuery}":`, { status: findPlaceResponse.status });
+        console.error(`[PlacesService] Find Place API error for query "${currentQuery}":`, { status: findPlaceResponse.status, body: await findPlaceResponse.text() });
         continue; // Try the next query
       }
 
@@ -74,7 +74,7 @@ export async function getPlaceDetails(query: string): Promise<PlaceDetails> {
 
       const detailsResponse = await fetch(detailsUrl.toString());
       if (!detailsResponse.ok) {
-        console.error(`[PlacesService] Place Details API error for placeId "${place_id}":`, { status: detailsResponse.status });
+        console.error(`[PlacesService] Place Details API error for placeId "${place_id}":`, { status: detailsResponse.status, body: await detailsResponse.text() });
         continue; // Try the next query
       }
 
